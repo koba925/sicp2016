@@ -9,3 +9,25 @@
 (define (f a) (sum-of-squares (+ a 1) (* a 2)))
 
 (check-eq? (f 5) 136)
+
+; 1.1.6 Conditional Expressions and Predicates
+
+; Exercise 1.3.
+(define (sum-of-squares-of-top-2 a b c)
+  (cond ((and (>= a c) (>= b c)) (sum-of-squares a b))
+        ((and (>= a b) (>= c b)) (sum-of-squares a c))
+        (else (sum-of-squares b c))))
+
+(check-eq? (sum-of-squares-of-top-2 2 2 2) 8)
+(check-eq? (sum-of-squares-of-top-2 3 2 2) 13)
+(check-eq? (sum-of-squares-of-top-2 2 3 2) 13)
+(check-eq? (sum-of-squares-of-top-2 2 2 3) 13)
+(check-eq? (sum-of-squares-of-top-2 3 3 2) 18)
+(check-eq? (sum-of-squares-of-top-2 3 2 3) 18)
+(check-eq? (sum-of-squares-of-top-2 2 3 3) 18)
+(check-eq? (sum-of-squares-of-top-2 1 2 3) 13)
+(check-eq? (sum-of-squares-of-top-2 1 3 2) 13)
+(check-eq? (sum-of-squares-of-top-2 2 1 3) 13)
+(check-eq? (sum-of-squares-of-top-2 2 3 1) 13)
+(check-eq? (sum-of-squares-of-top-2 3 1 2) 13)
+(check-eq? (sum-of-squares-of-top-2 3 2 1) 13)
