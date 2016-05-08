@@ -31,3 +31,11 @@
 (check-eq? (sum-of-squares-of-top-2 2 3 1) 13)
 (check-eq? (sum-of-squares-of-top-2 3 1 2) 13)
 (check-eq? (sum-of-squares-of-top-2 3 2 1) 13)
+
+; Exercise 1.4.
+(define (a-plus-abs-b a b)
+  ((if (> b 0) + -) a b))
+
+(check-eq? (a-plus-abs-b 3 -2) 5)
+(check-eq? (a-plus-abs-b 3 0) 3)
+(check-eq? (a-plus-abs-b 3 2) 5)
