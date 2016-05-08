@@ -39,3 +39,8 @@
 (check-eq? (a-plus-abs-b 3 -2) 5)
 (check-eq? (a-plus-abs-b 3 0) 3)
 (check-eq? (a-plus-abs-b 3 2) 5)
+
+; Exercise 1.5.
+(define (p) (p))
+(define (test x y) (if (= x 0) 0 y))
+; (test 0 (p)) ; 実行すると無限ループ
