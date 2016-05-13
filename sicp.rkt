@@ -64,7 +64,7 @@
 ; 1.1.7 Example: Sqare Roots by Newton's Method
 
 (define (sqrt x)
-  (sqrt-iter 1 x))
+  (sqrt-iter 1.0 x))
 
 (define (sqrt-iter guess x)
   (if (good-enough? guess x)
@@ -78,6 +78,8 @@
   (/ (+ x y) 2))
 
 (define (good-enough? guess x)
+;  (printf "~a ~a ~a ~n" (square guess) x (- (square guess) x))
+;  (printf "~a ~a ~a ~n" guess (/ x guess) (average guess (/ x guess)))
   (< (abs (- (square guess) x)) 0.001))
 
 (check-= (square (sqrt 2.0)) 2.0 0.001)
@@ -97,3 +99,25 @@
 ;          (sqrt-iter (improve guess x) x)))
 
 ; (sqrt 2.0) ; 実行すると無限ループ
+
+; Exercise 1.7.
+
+; (sqrt 0.0001)
+; (square (sqrt 0.0001))
+
+;(sqrt 100)
+;(sqrt 1000)
+;(sqrt 10000)
+;(sqrt 100000)
+;(sqrt 1000000)
+;(sqrt 10000000)
+;(sqrt 100000000)
+;(sqrt 1000000000000)
+;(sqrt 10000000000000)
+
+
+; (define (good-enough? guess x)
+;   (< (/ (abs (- (improve guess x) guess)) guess) 0.0000001))
+
+
+
