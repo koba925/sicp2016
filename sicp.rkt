@@ -81,7 +81,3 @@
   (< (abs (- (square guess) x)) 0.001))
 
 (check-= (square (sqrt 2.0)) 2.0 0.001)
-
-
-
-
