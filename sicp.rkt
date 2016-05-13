@@ -12,6 +12,22 @@
 
 ; 1.1.6 Conditional Expressions and Predicates
 
+;(define (abs x)
+;  (cond ((= x 0) 0)
+;        ((> x 0) x)
+;        ((< x 0) (- x))))
+
+;(define (abs x)
+;  (cond ((< x 0) (- x))
+;        (else x)))
+
+(define (abs x)
+  (if (< x 0) (- x) x))
+
+(check-eq? (abs 2) 2)
+(check-eq? (abs -2) 2)
+(check-eq? (abs 0) 0)
+
 ; Exercise 1.3.
 (define (sum-of-squares-of-top-2 a b c)
   (cond ((and (>= a c) (>= b c)) (sum-of-squares a b))
@@ -44,3 +60,28 @@
 (define (p) (p))
 (define (test x y) (if (= x 0) 0 y))
 ; (test 0 (p)) ; 実行すると無限ループ
+
+; 1.1.7 Example: Sqare Roots by Newton's Method
+
+(define (sqrt x)
+  (sqrt-iter 1 x))
+
+(define (sqrt-iter guess x)
+  (if (good-enough? guess x)
+      guess
+      (sqrt-iter (improve guess x) x)))
+
+(define (improve guess x)
+  (average guess (/ x guess)))
+
+(define (average x y)
+  (/ (+ x y) 2))
+
+(define (good-enough? guess x)
+  (< (abs (- (square guess) x)) 0.001))
+
+(check-= (square (sqrt 2.0)) 2.0 0.001)
+
+
+
+
