@@ -81,3 +81,19 @@
   (< (abs (- (square guess) x)) 0.001))
 
 (check-= (square (sqrt 2.0)) 2.0 0.001)
+
+; Exercise 1.6.
+
+(define (new-if predicate then-clause else-clause)
+  (cond (predicate then-clause)
+        (else else-clause)))
+
+(check-eq? (new-if (= 2 3) 0 5) 5)
+(check-eq? (new-if (= 1 1) 0 5) 0)
+
+;(define (sqrt-iter guess x)
+;  (new-if (good-enough? guess x)
+;          guess
+;          (sqrt-iter (improve guess x) x)))
+
+; (sqrt 2.0) ; 実行すると無限ループ
