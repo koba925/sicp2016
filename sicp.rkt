@@ -115,9 +115,5 @@
 ;(sqrt 1000000000000)
 ;(sqrt 10000000000000)
 
-
 ; (define (good-enough? guess x)
 ;   (< (/ (abs (- (improve guess x) guess)) guess) 0.0000001))
-
-
-
