@@ -117,3 +117,24 @@
 
 ; (define (good-enough? guess x)
 ;   (< (/ (abs (- (improve guess x) guess)) guess) 0.0000001))
+
+; Exercise 1.8.
+
+(define (cbrt x)
+  (cbrt-iter 1.0 x))
+
+(define (cbrt-iter guess x)
+  (if (cbrt-good-enough? guess x)
+      guess
+      (cbrt-iter (cbrt-improve guess x) x)))
+
+(define (cbrt-improve guess x)
+  (/ (+ (/ x (square guess)) (* 2 guess)) 3))
+
+(define (cbrt-good-enough? guess x)
+  (< (abs (- (cube guess) x)) 0.001))
+
+(define (cube x)
+  (* x x x))
+
+(check-= (cube (cbrt 3)) 3 0.001)
