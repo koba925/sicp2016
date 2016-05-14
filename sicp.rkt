@@ -138,3 +138,24 @@
   (* x x x))
 
 (check-= (cube (cbrt 3)) 3 0.001)
+
+; 1.1.8 Procedures as Black-Box Abstractions
+
+(define (square-2 x) (exp (double (log x))))
+(define (double x) (+ x x))
+
+(check-= (square-2 3) 9 0.001)
+
+(define (sqrt-blockstructure x)
+  (define (good-enough? guess)
+    (< (abs (- (square guess) x)) 0.001))
+  (define (improve guess)
+    (average guess (/ x guess)))
+  (define (sqrt-iter guess)
+    (if (good-enough? guess)
+        guess
+        (sqrt-iter (improve guess))))
+  (sqrt-iter 1.0))
+
+(check-= (square (sqrt-blockstructure 2)) 2 0.001)
+
