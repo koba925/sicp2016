@@ -174,3 +174,23 @@
       (fact-iter (* counter product) (+ counter 1) max-count)))
 (check-eq? (factorial 1) 1)
 (check-eq? (factorial 3) 6)
+
+; Exercise 1.9.
+
+(define (inc n) (+ n 1))
+(define (dec n) (- n 1))
+
+(check-eq? (inc 3) 4)
+(check-eq? (dec 3) 2)
+
+;(define (o+ a b)
+;  (if (= a 0)
+;      b
+;      (inc (o+ (dec a) b))))
+
+(define (o+ a b)
+  (if (= a 0)
+      b
+      (+ (dec a) (inc b))))
+
+(check-eq? (o+ 4 5) 9)
