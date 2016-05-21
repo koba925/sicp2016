@@ -226,3 +226,15 @@
 ;(h 2)
 ;(h 3)
 ;(h 4)
+
+; 1.2.2 Tree Recursion
+
+(define (fib n)
+  (cond ((= n 0) 0)
+        ((= n 1) 1)
+        (else (+ (fib (- n 1)) (fib (- n 2))))))
+
+(check-eq? (fib 0) 0)
+(check-eq? (fib 1) 1)
+(check-eq? (fib 2) 1)
+(check-eq? (fib 6) 8)

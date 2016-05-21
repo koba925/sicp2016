@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<title>sicp01</title>
+
+
+
+</head>
+
+<body>
+
+<h1 id="toc_0">SICPを読む(1)</h1>
+
+<p>というわけでSICPを読んでみようかと思います<br>
+Lambda the Ultimateシリーズはまたそのうちに</p>
+
+<p>どんな本かっていうと以前書いたような気がするので割愛<br>
+最後までちゃんと読めたら自己満足に浸れるという期待で</p>
+
+<p>今回は英語で読んでみようかなと思ってます それほど意味はありません<br>
+Structure and Interpretation of Computer Programs<br>
+by Harold Abelson and Gerald Jay Sussan with Julie Sussman<br>
+https://mitpress.mit.edu/sicp/full-text/book/book.html</p>
+
+<p>今日本語で読むならこれかなあ 少々物議を醸してますが<br>
+https://github.com/hiroshi-manabe/sicp-pdf<br>
+ですます調が少々体質に合わないので困ったときのガイド程度に<br>
+紙の本も持ってるんですけど第１版だし</p>
+
+<h2 id="toc_1">Foreword</h2>
+
+<p>挫折するたびに最初から読むのでこのへんはおなじみ<br>
+飛ばせばいいじゃないかという話もありますがまえがきあとがきが好きなんです<br>
+読み終わってあとがきがないとちょっとがっかりしたりします</p>
+
+<p>英語的にはたぶんこのForewordが一番難易度が高いんじゃないでしょうか<br>
+格調高いというかなんというか<br>
+そんなニュアンスがわかるわけじゃないんですけど長くて見慣れない単語がいっぱいでてきたり<br>
+本文はそこまでじゃありません<br>
+Forewordだけちょっと異質</p>
+
+<p>Forewordを書いたAlan J. Perlisさんはうまいこと言うのがお好きなようで<br>
+Epigrams on Programming<br>
+http://www-pu.informatik.uni-tuebingen.de/users/klaeren/epigrams.html<br>
+というのもちょっと有名な模様</p>
+
+<h2 id="toc_2">Preface to the Second Edition</h2>
+
+<blockquote>
+<p>This edition emphasizes several new themes. The most important of these is the central role played by different approaches to dealing with time in computational models: objects with state, concurrent programming, functional programming, lazy evaluation, and nondeterministic programming. We have included new sections on concurrency and nondeterminism, and we have tried to integrate this theme throughout the book.</p>
+</blockquote>
+
+<ul>
+<li>今回の改訂のもっとも重要なテーマは時間の取り扱い</li>
+<li>状態を持つオブジェクトとか並列プログラミングとか関数型プログラミングとか</li>
+<li>遅延評価とか非決定プログラミングとか</li>
+</ul>
+
+<p>このへんに注目したい</p>
+
+<h2 id="toc_3">Preface to the First Edition</h2>
+
+<blockquote>
+<p>First, we want to establish the idea that a computer language is not just a way of getting a computer to perform operations but rather that it is a novel formal medium for expressing ideas about methodology. Thus, programs must be written for people to read, and only incidentally for machines to execute. </p>
+</blockquote>
+
+<ul>
+<li>プログラミング言語はコンピュータを操作するためだけのものじゃない</li>
+<li>方法や手順を表現するための新しいメディアでもある</li>
+<li>プログラムは人間が読むために書かれるものであって、たまたま機械で実行されるだけ</li>
+</ul>
+
+<p>ここんとこ小学校でプログラミングを教えるとかでいろいろ議論されてますが<br>
+先生方にはぜひこういう視点をもって教育していただきたいなと思う次第です<br>
+小学校の先生もいろいろやらされて大変だと思いますががんばってください</p>
+
+<blockquote>
+<p>They should feel secure about modifying a program, retaining the spirit and style of the original author.</p>
+</blockquote>
+
+<ul>
+<li>(この本を読んだ人は)自信を持ってプログラムを修正することができる</li>
+<li>しかも、元のコードを書いた人の考えやスタイルを保って修正できる</li>
+</ul>
+
+<p>すばらしい</p>
+
+<blockquote>
+<p>These skills are by no means unique to computer programming.</p>
+</blockquote>
+
+<ul>
+<li>こういうスキルはコンピュータのプログラミングに限られたものではない</li>
+</ul>
+
+<p>家に帰ったら手を洗って荷物を片付けて宿題して明日の準備をして<br>
+おやつがなかったらお母さんにおねだりする、みたいなのもプログラムですよねー</p>
+
+<blockquote>
+<p>Underlying our approach to this subject is our conviction that &quot;computer science&quot; is not a science and that its significance has little to do with computers. The computer revolution is a revolution in the way we think and in the way we express what we think. </p>
+</blockquote>
+
+<ul>
+<li>計算機科学は科学ではないし、コンピュータともほとんど関係ない</li>
+<li>コンピュータによって、私たちの考え方や考えの表現方法に革命が起こった</li>
+</ul>
+
+<blockquote>
+<p>Mathematics provides a framework for dealing precisely with notions of &quot;what is.&quot; Computation provides a framework for dealing precisely with notions of &quot;how to.&quot;</p>
+</blockquote>
+
+<ul>
+<li>数学は「それは何か」を正確に表現するための枠組みを提供する</li>
+<li>プログラミングは「どうやるか」を正確に表現するための枠組みを提供する</li>
+</ul>
+
+<p>数学は宣言的でプログラミングは手続き型だと言ってますが<br>
+中では手続き型・関数型・宣言型いろいろ登場します</p>
+
+<p>いいことが書いてあると思うので先生方もPreface to the First Editionだけは<br>
+読んでいただきたい（半分は本気）</p>
+
+<h2 id="toc_4">Acknowledgements</h2>
+
+<p>知ってる名前だけ挙げてみる</p>
+
+<ul>
+<li>Dan Friedman (Scheme手習い・Scheme修行の著者)</li>
+<li>Guy Steele Jr. (SussmanといっしょにSchemeを開発した人)</li>
+<li>Marvin Minsky (人工知能の父)</li>
+<li>Seymour Papert (LOGOとかLEGO MINDSTORMを作った人)</li>
+<li>Richard Stallman (EmacsとかGNUの人)</li>
+</ul>
+
+<p>貢献の形や程度は様々だと思いますがさすがのそうそうたるメンバー</p>
+
+<p>まずはこれくらいで</p>
+
+
+
+
+</body>
+
+</html>
