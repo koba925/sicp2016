@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<title>sicp02</title>
+
+
+
+</head>
+
+<body>
+
+<h1 id="toc_0">SICPを読む(2)</h1>
+
+<p>それでは本文へ</p>
+
+<h2 id="toc_1">Chapter 1 Building Abstractions with Procedures</h2>
+
+<blockquote>
+<p>Master software engineers have the ability to organize programs so that they can be reasonably sure that the resulting processes will perform the tasks intended. They can visualize the behavior of their systems in advance. </p>
+</blockquote>
+
+<ul>
+<li>熟練したソフトウェアエンジニアは、プログラムが意図通りに実行されることを確信できるようにプログラムを構成することができる</li>
+<li>彼らは、システムのふるまいを前もってイメージすることができるのだ</li>
+</ul>
+
+<p>イメージできないと動かしてみたら動きましためでたしめでたしみたいになりますね<br>
+そりゃ俺か<br>
+(Y Y)もイメージできますか（無理</p>
+
+<blockquote>
+<p>Well-designed computational systems, like well-designed automobiles or nuclear reactors, are designed in a modular manner, so that the parts can be constructed, replaced, and debugged separately.</p>
+</blockquote>
+
+<ul>
+<li>システムをうまく分割して設計すれば部分ごとに作ったり置き換えたりすることができる</li>
+</ul>
+
+<p>そういえばこういう記事がありました<br>
+どうしてMITではSICPを教えるのをやめてしまったのか、Gerry Sussmanに聞いたもの</p>
+
+<p>PROGRAMMING BY POKING: WHY MIT STOPPED TEACHING SICP<br>
+http://www.posteriorscience.net/?p=206</p>
+
+<ul>
+<li>SICPでは、シンプルでよく理解されたパーツを組み合わせることによるプログラミングを扱った</li>
+</ul>
+
+<p>たぶんこれが、「うまく分割して設計し」「システムのふるまいを前もってイメージする」やり方<br>
+一方</p>
+
+<ul>
+<li>いまどきのプログラミングはそうじゃない</li>
+<li>&quot;More like science&quot;だ</li>
+<li>理解しきれないフレームワークやライブラリを使ってみてはうまくいくやり方を探している</li>
+</ul>
+
+<p>わからないものを観察して調べる、という意味でscienceっぽい、てことでしょうか<br>
+めでたしめでたし方式プログラミングですね<br>
+Prefaceでプログラミングは科学じゃない、って言ってるのもそういうことなんでしょう<br>
+ということは科学じゃなくて数学っぽいってことでしょうか</p>
+
+<p>この本でSchemeを使う理由が説明されます</p>
+
+<ul>
+<li>Lispは自由だ！</li>
+</ul>
+
+<p>（要約しすぎ）</p>
+
+<ul>
+<li>もっとも重要なのは、Lispのプログラムが、それ自身Lispのデータとして扱えること</li>
+</ul>
+
+<h2 id="toc_2">1.1 The Elements of Programming</h2>
+
+<ul>
+<li>プログラミング言語は単純なアイデアを組み合わせて複雑なアイデアを表現する手段を提供する
+
+<ul>
+<li>プリミティブ：もっとも単純なモノ</li>
+<li>複合の手段：シンプルなモノを組み合わせる</li>
+<li>抽象の手段：複合したモノに名前をつけてひとつのモノとして扱えるようにする</li>
+</ul></li>
+<li>モノにはデータと手続きの２種類がある（後で境目があいまいになるけど</li>
+</ul>
+
+<p>訳しにくいと思った言葉はあっさり挫折してテキトーな言葉にしています</p>
+
+<div><pre><code class="language-none">&gt; 486
+486</code></pre></div>
+
+<p>プリミティブ（数）です<br>
+数と言うか数字と言うかちょっとだけ微妙な問題</p>
+
+<div><pre><code class="language-none">&gt; (+ 137 349)
+486</code></pre></div>
+
+<p>プリミティブ（数と＋）を複合しました</p>
+
+<div><pre><code class="language-none">&gt; (define pi 3.14159)
+&gt; (define radius 10)
+&gt; (define circumference (* 2 pi radius))
+&gt; circumference
+&gt; 62.8318</code></pre></div>
+
+<p>プリミティブや複合式に名前をつけて抽象しました</p>
+
+<h2 id="toc_3">1.1.3 Evaluating Combinations</h2>
+
+<p>複合式っていうと何やら複雑そうですが上で出てきた<code>(* 2 pi radius)</code>だって複合式<br>
+演算子(<code>*</code>)と引数(<code>2</code>、<code>pi</code>、<code>radius</code>)があれば複合式です</p>
+
+<ul>
+<li>複合式を評価するには</li>
+<li>まず複合式の各項目を評価し</li>
+</ul>
+
+<p><code>*</code>と<code>2</code>と<code>pi</code>と<code>radius</code>を評価します<br>
+<code>*</code>は「かけ算」に、<code>2</code>は2に、<code>pi</code>は3.14159に、<code>radius</code>は10に評価されます</p>
+
+<ul>
+<li>一番左の項目の値を、他の項目の値に適用する</li>
+</ul>
+
+<p>「かけ算」を2と3.14159と10に適用します<br>
+つまり2*3.14159*10を計算するってこと</p>
+
+<p><code>(* (+ 1 2) 4)</code>みたいに複合式が入れ子になっているときも<br>
+上のルールがそのまま適用できます</p>
+
+<ol>
+<li><code>*</code>と<code>(+ 1 2)</code>と<code>3</code>を評価します</li>
+<li><code>*</code>は「かけ算」に、<code>4</code>は4に評価されます <code>(+ 1 2)</code>も評価します</li>
+<li><code>(+ 1 2)</code>は複合式なので同じルールを適用します</li>
+<li><code>+</code>は「足し算」に、<code>1</code>は1に、<code>2</code>は2に評価されます</li>
+<li>「足し算」を1と2に適用して3になります</li>
+<li><code>(+ 1 2)</code>は3に評価されました</li>
+<li>「かけ算」を3と4に適用して12になります</li>
+<li><code>(* (+ 1 2) 4)</code>は12に評価されました</li>
+</ol>
+
+<p>式の構造が再帰的なので手続きも再帰的になるのが自然かつシンプル、て話</p>
+
+<ul>
+<li><code>define</code>は複合式ではない</li>
+<li><code>(define x 3)</code>は<code>x</code>と<code>3</code>に<code>define</code>を適用するのではなく</li>
+<li>ただ<code>x</code>を<code>3</code>に結びつけているだけ</li>
+<li>こういうのを特殊形式という</li>
+</ul>
+
+<p>複合式のルールに従うと、まず<code>define</code>と<code>x</code>と<code>3</code>を評価するわけですが<br>
+<code>x</code>はただ<code>x</code>であってほしくて、評価してみたら実は<code>x</code>は5でしたーなんてことになっても困ります</p>
+
+<p><code>(define &#39;x 3)</code>と書くことにするなら複合式として扱えるかもしれませんが<br>
+初期のSchemeには現在のset!にあたるASETというのがありましたが、<br>
+これは(ASET &#39;X 3)と書くお約束で、面倒なら(ASET&#39; X 3)とも書けるよ、って話でしたし<br>
+（でも関数じゃなくてプリミティブとして実装されてたらしいですが）<br>
+Common Lispなどで使われる<code>setq</code>も起源をたどれば<br>
+<code>(SET (QUOTE xxx) ...)</code>と書くのが面倒なのでQUOTE付きの<code>SET</code>ができた<br>
+という話のようです</p>
+
+<h2 id="toc_4">1.1.4 Compound Procedures</h2>
+
+<p>CompoundもCombinationも複合と言いたくなってしまって多少もやっとしています<br>
+Compoundの方がCombinationよりもくっつき具合が強い印象があるんですけど<br>
+くっついてるというよりは混じってる感じ<br>
+manabe氏の訳ではCombinationを組み合わせと訳しているけどもうちょっといい言葉がありそう<br>
+英語のまま置いておこうかな</p>
+
+<p>Compound Procedureの定義です<br>
+ただの関数定義</p>
+
+<blockquote>
+<div><pre><code class="language-none">(define (square x) (* x x))</code></pre></div>
+</blockquote>
+
+<p>Combinationに名前をつけたものがCompound Proceduresてとこですかね<br>
+Combinationはそれぞれ部品が見えてるけど<br>
+Compoundだと混じっちゃって見えない、みたいな感じでしょうか</p>
+
+<p>あと引数がつきました<br>
+英語ではargumentとかparameterと言わずoperandと言ってます<br>
+そのへん使い分けがあるんでしょうか<br>
+日本語版にしたがってoperandは被演算子と訳しておきます</p>
+
+<p>Scheme手習い式ならこうです</p>
+
+<blockquote>
+<div><pre><code class="language-none">(define square (lambda (x) (* x x))</code></pre></div>
+</blockquote>
+
+<p>こっちのほうがピュアな感じがしますけどちょっと文字数が多い</p>
+
+<p>続いて英語圏の人にはわかりやすそうな説明が出てきます<br>
+日本人ハンデ大きいかなと思いました</p>
+
+<blockquote>
+<div><pre><code class="language-none">(define (square x)        (*        x     x))
+ ↑       ↑      ↑          ↑        ↑     ↑
+ To      square something, multiply it by itself.</code></pre></div>
+</blockquote>
+
+<p>日本人なら逆ポーランド記法で対抗？</p>
+
+<h2 id="toc_5">1.1.5 The Substitution Model for Procedure Application</h2>
+
+<ul>
+<li>演算子がcompound procedureである複合式も評価の方法は同じ</li>
+<li>演算子と被演算子をそれぞれ評価してから（演算子を評価した結果である）compound procedureを被演算子に適用する</li>
+</ul>
+
+<p>そしてCompound procedureを被演算子に適用するには</p>
+
+<ul>
+<li>procedureの本体の仮引数を、対応する引数で置き換える</li>
+</ul>
+
+<p>仮引数＝formal parameter、引数＝argumentです<br>
+ちょっとめんどい</p>
+
+<p>この辺、今まではなんとなくしかわかってませんでしたが<br>
+Scheme手習いやScheme論文でカンペキに理解できたはず</p>
+
+<ul>
+<li><code>(f 5)</code>を評価するにはまずfの本体を持ってくる</li>
+<li><code>(sum-of-squares (+ a 1) (* a 2))</code></li>
+<li>仮引数(a)を引数(5)で置き換える</li>
+<li><code>(sum-of-squares (+ 5 1) (* 5 2))</code></li>
+<li>演算子と引数を評価する</li>
+</ul>
+
+<p>手習い式のdefineなら</p>
+
+<div><pre><code class="language-none">(define f
+  (lambda (a)
+    (sum-of-squares (+ a 1) (* a 2))))</code></pre></div>
+
+<p>だから</p>
+
+<div><pre><code class="language-none">  (f 5)
+= ((lambda (a) (sum-of-squares (+ a 1) (* a 2))) 5)
+= (sum-of-squares (+ 5 1) (* 5 2))</code></pre></div>
+
+<p>とすっきりしますね</p>
+
+<p><code>sum-of-squares</code>は <code>(+ (square x) (square y))</code>になり<br>
+<code>(+ 5 1)</code>は6になり（演算子がプリミティブの場合の評価はさっきやったのでできる）<br>
+<code>(* 5 2)</code>は10になります</p>
+
+<ul>
+<li><code>(+ (square 6) (square 10))</code></li>
+<li><code>(+ (* 6 6) (* 10 10))</code></li>
+<li><code>(+ 36 100)</code></li>
+<li><code>136</code></li>
+</ul>
+
+<p>バッチリ</p>
+
+<ul>
+<li>これが手続き適用の置換モデル</li>
+<li>当面はこれが手続き適用の「意味」と思ってていい</li>
+<li>ただしインタプリタが実際文字列を置換して評価しているわけじゃない</li>
+</ul>
+
+<p>Schemeの論文ではSubstitution Semanticsのところに書いてあった話</p>
+
+<p>初心者（そういう人も対象読者）にこういう話を<br>
+それもこんな初めのほうでやる必要ってあるのかと思ってましたが<br>
+考えてみるとまったく初めての人は何かモデルがないと考えようがないですね</p>
+
+<p>慣れるまでは1行1行丹念に読まないとわからない、ということを<br>
+改めて認識するのにもいいかもしれません<br>
+小説を読むのとコードを読むのとは全然違うんだと<br>
+「システムのふるまいを前もってイメージ」するにはモデルに基づいて1行1行読むんだと</p>
+
+<p>といってもそういういうことを意識できたのはわりと最近<br>
+もっと具体的にいうと数学ガールを読んでからです<br>
+コードじゃなくて数式だけどまあ似たようなもの<br>
+乱択アルゴリズムの巻なら実際にコードを1行1行追ってくれてるし<br>
+数学はちょっとなあ、と思う人にもおすすめです<br>
+乱択アルゴリズムの巻が読めれば他の巻も読めると思いますよ</p>
+
+<p>自分はBASICをいじってる間に頭の中にモデルができていった世代<br>
+だから頭の中にあるのは完全に手続き的なモデルだと思われます<br>
+置換モデルから入った人とはプログラミングに対する考え方が根本的に違ってくるかもしれません<br>
+すごく重要な気がしてきました</p>
+
+<h2 id="toc_6">Applicative order versus normal order</h2>
+
+<ul>
+<li>さっきは演算子と被演算子を評価してから被演算子の評価結果にに演算子の評価結果を適用してました</li>
+<li>でもそれがただひとつのやり方というわけではありません</li>
+<li>もうひとつのやりかたは、値が必要になるまで被演算子を評価しないというものです</li>
+</ul>
+
+<p>慣れた書き方で書くとこう</p>
+
+<div><pre><code class="language-none">  (f 5)
+= (sum-of-squares (+ 5 1) (* 5 2))
+= (+ (square (+ 5 1)) (square (* 5 2)))
+= (+ (* (+ 5 1) (+ 5 1)) (* (* 5 2) (* 5 2)))</code></pre></div>
+
+<p>これですべてがプリミティブにまで展開されたので演算子を被演算子に適用していきます</p>
+
+<p>値が必要になる、というのとすべてがプリミティブにまで展開される、というのが<br>
+同じことなのかどうかは少しはっきりしない気もしますが<br>
+他にやることがなくなったことは間違いありません</p>
+
+<div><pre><code class="language-none">= (+ (* 6 6) (* 10 10))
+= (+ 36 100)
+= 136</code></pre></div>
+
+<ul>
+<li>(+ 5 1)や(* 5 2)が2回ずつ評価されてることに注意</li>
+<li>こちらのやりかたは「正規順評価」、さっきのやりかたは「適用順評価」と呼ばれる</li>
+<li>Lispは適用順評価を採用している</li>
+<li>適用順のほうが効率がいいし、正規順では取り扱いが難しいケースが出てくるから</li>
+<li>でも正規順がとても便利なときもある</li>
+</ul>
+
+<p>Haskellさんは正規順＋遅延評価（でいいんだったかな）<br>
+メジャーな言語で適用順じゃないのはそれくらい？</p>
+
+<h2 id="toc_7">1.1.6 Conditional Expressions and Predicates</h2>
+
+<ul>
+<li>我々が表現できる手続きは今のところ非常に制限されている</li>
+<li>それは条件にしたがって異なる操作をすることができないから</li>
+</ul>
+
+<p>正規順評価だったらよかったんですけどねー<br>
+というわけでcond、if、and、or、notの説明<br>
+not以外は演算子と被演算子を評価して、っていう動きじゃないので特殊形式です<br>
+それぞれにどういう動きをするか決められてます</p>
+
+<h3 id="toc_8">Exercise 1.1、1.2</h3>
+
+<p>ただの練習なので割愛</p>
+
+<h3 id="toc_9">Exercise 1.3.</h3>
+
+<ul>
+<li>3つの数を取り、大きな2つの数の2乗の和を返す手続きを書け</li>
+</ul>
+
+<p>そろそろ動かしながら行きますか<br>
+SICPでちょっとやりにくいのは、ところどころで以前に定義した関数を使ってたりするところ<br>
+どこでファイルを分ければいいのかわかりづらいんですよね</p>
+
+<div><pre><code class="language-none">(define (sum-of-squares-of-top-2 a b c)
+  (cond ((and (&gt;= a c) (&gt;= b c)) (sum-of-squares a b))
+        ((and (&gt;= a b) (&gt;= c b)) (sum-of-squares a c))
+        (else (sum-of-squares b c))))</code></pre></div>
+
+<p>早くももっといい書き方があるかもと思わせるような問題を出すところがニクい</p>
+
+<h3 id="toc_10">Exercise 1.4.</h3>
+
+<blockquote>
+<p>Observe that our model of evaluation allows for combinations whose operators are compound expressions. </p>
+</blockquote>
+
+<p>それさっきやったことじゃないの・・・？</p>
+
+<blockquote>
+<p>Use this observation to describe the behavior of the following procedure:</p>
+
+<div><pre><code class="language-none">(define (a-plus-abs-b a b)
+  ((if (&gt; b 0) + -) a b))</code></pre></div>
+</blockquote>
+
+<p>ああそういうことか<br>
+これまでの用語の使い方からしたら&quot;combinations whose operators are combinations&quot;じゃね？<br>
+演算子が複合式である複合式でもOKか、ってことでしょ？</p>
+
+<p>しかしまあなんとここで早くも関数型の洗礼て感じで面白い<br>
+手続きモデル脳だとこうしか思いつけない</p>
+
+<div><pre><code class="language-none">&gt; (define (a-plus-abs-b a b)
+&gt;   (if (&gt; b 0) (+ a b) (- a b)))</code></pre></div>
+
+<p>ともあれ</p>
+
+<div><pre><code class="language-none">  (a-plus-abs-b 2 -3)
+; ((if (&gt; b 0) + -) a b) ←関数本体を持ってきて
+= ((if (&gt; -3 0) + -) 2 -3) ←置き換えて
+; 演算子と被演算子を評価する
+; ifを評価するにはまず(&gt; -3 0)を評価する
+; 偽なので-を返す
+= (- 2 -3)
+= 5</code></pre></div>
+
+<p>おｋ</p>
+
+<h3 id="toc_11">Exercise 1.5.</h3>
+
+<ul>
+<li>次のプログラムを適用順・正規順で評価するとどうなるか</li>
+</ul>
+
+<div><pre><code class="language-none">(define (p) (p))
+(define (test x y) (if (= x 0) 0 y))
+(test 0 (p))</code></pre></div>
+
+<p>適用順だと<code>(test 0 (p))</code>を評価するにはまず<code>test</code>と<code>0</code>と<code>(p)</code>を評価する<br>
+<code>test</code>は<code>(if (= x 0) 0 y)</code>になり<br>
+<code>0</code>は<code>0</code>になり<br>
+<code>(p)</code>は<code>(p)</code>になる<br>
+<code>(p)</code>はまた評価しなければならなくてまた<code>(p)</code>になる・・・<br>
+で無限ループ</p>
+
+<p>なんとなく程度しか理解してなかったり<br>
+<code>(define (p) (p))</code>の見かけの異様さに影響されたりで<br>
+以前に読んだ時はなんとなくそうなりそうだね、くらいで確信が持ててなかったけど<br>
+今は置換モデルにも慣れたしインタプリタの動作も知ってるし<br>
+今回は安心</p>
+
+<p>正規順だと被演算子は必要になるまで評価しないので</p>
+
+<p><code>(test 0 (p))</code>の<code>test</code>だけを評価して<code>(if (= 0 0) 0 (p))</code>となり<br>
+<code>if</code>の評価規則にしたがい<code>(= 0 0)</code>を評価して<br>
+真なので<code>0</code>を返して終わる<br>
+以上</p>
+
+<h2 id="toc_12">1.1.7 Example: Sqare Roots by Newton&#39;s Method</h2>
+
+<div><pre><code class="language-none">(define (sqrt x)
+  (the y (and (&gt;= 0)
+              (= (square y) x))))</code></pre></div>
+
+<p>とは書けません<br>
+そこが数学との違い</p>
+
+<ul>
+<li>数学ではモノの性質を記述しますがプログラムではどのようにやるかを記述する</li>
+<li>別の言い方をすると、数学は宣言的だけれどもプログラムは手続き的</li>
+</ul>
+
+<p>あとはニュートン法で平方根を求めます<br>
+特になんということもなし</p>
+
+<h3 id="toc_13">Exercise 1.6.</h3>
+
+<p><code>new-if</code>は関数なので、引数に関数を適用する前にすべての引数を評価します<br>
+するとExercise 1.5.と同じしくみで無限ループになります<br>
+普通のifは、まず<code>predicate</code>だけを評価して、<code>then-clause</code>と<code>else-clause</code>の<br>
+必要な方だけを評価しますのでいつかは止まります（たぶん） </p>
+
+<h3 id="toc_14">Exercise 1.7.</h3>
+
+<ul>
+<li><code>good-enough?</code>はすごく小さい数やすごく大きい数についてはうまく働かない</li>
+<li>説明せよ</li>
+</ul>
+
+<p>非常に小さい数のsqrtを計算すると、誤差が相対的に見て非常に大きくなります</p>
+
+<div><pre><code class="language-none">&gt; (sqrt 0.0001)
+0.03230844833048122
+&gt; (square (sqrt 0.0001))
+0.0010438358335233748</code></pre></div>
+
+<p>非常に大きい数の<code>sqrt</code>を計算すると、計算の精度の問題で<br>
+どうしても誤差が0.001以下にならず、無限ループに入ることがあります</p>
+
+<div><pre><code class="language-none">&gt; (sqrt 1000000000000)
+1000000.0
+&gt; (sqrt 10000000000000)
+(応答なし)</code></pre></div>
+
+<p><code>(square guess)</code>と<code>x</code>、誤差の途中経過も表示させてみました<br>
+まずは値が求まる方から</p>
+
+<div><pre><code class="language-none">&gt; (sqrt 1000000000000)
+1.0 1000000000000.0 -999999999999.0 
+2.500000000005e+23 1000000000000.0 2.499999999995e+23 
+6.2500000000625e+22 1000000000000.0 6.2499999999625e+22 
+  :
+1000910188624.8981 1000000000000.0 910188624.8980713 
+1000000206922.4948 1000000000000.0 206922.49475097656 
+1000000000000.0107 1000000000000.0 0.0107421875 
+1000000000000.0 1000000000000.0 0.0 
+1000000.0</code></pre></div>
+
+<p>表示上はですが<code>(square guess)</code>精度が小数点以下4桁分しかなく<br>
+誤差0.001以下に揃えるのは少々危うくなってきてる感じです</p>
+
+<p>では終わらない方</p>
+
+<div><pre><code class="language-none">&gt; (sqrt 10000000000000)
+1.0 10000000000000.0 -9999999999999.0 
+2.5000000000005e+25 10000000000000.0 2.4999999999995e+25 
+6.25000000000625e+24 10000000000000.0 6.24999999999625e+24 
+  :
+10200570766916.678 10000000000000.0 200570766916.67773 
+10000985940724.807 10000000000000.0 985940724.8066406 
+10000000024299.582 10000000000000.0 24299.58203125 
+10000000000000.002 10000000000000.0 0.001953125 
+10000000000000.002 10000000000000.0 0.001953125 
+  :
+  :</code></pre></div>
+
+<p>かなり惜しかったんですけどねー<br>
+そうか値が動かなくなってしまうのか（必ずそうなるとは限らないかもしれませんが）</p>
+
+<p>guessと(/ x guess)の値も表示させてみましょうか</p>
+
+<div><pre><code class="language-none">&gt; (sqrt 10000000000000)
+1.0 10000000000000.0 5000000000000.5 
+5000000000000.5 1.9999999999998 2500000000001.25 
+2500000000001.25 3.999999999998 1250000000002.625 
+  :
+3641684.517987917 2745981.9626344633 3193833.2403111905 
+3193833.2403111905 3131033.8541738177 3162433.547242504 
+3162433.547242504 3162121.780778457 3162277.6640104805 
+3162277.6640104805 3162277.656326278 3162277.6601683795 
+3162277.6601683795 3162277.660168379 3162277.6601683795 
+  :
+  :</code></pre></div>
+
+<p>3162277.6601683795と3162277.656326278を足して2で割っても<br>
+3162277.6601683795になってしまうんですね<br>
+この辺が限界ということで</p>
+
+<p>でもSchemeだったら浮動小数点を使わない手もあるよな<br>
+<code>sqrt</code>を<code>(sqrt-iter 1 x))</code>に書き換えてやるだけでいいはず</p>
+
+<div><pre><code class="language-none">&gt; (sqrt 100)
+10
++ 139008452377144732764939786789661303114218850808529137991604824430036072629766435941001769154109609521811665540548899435521
+/
+993650612510151824074958925538589300439185013461061345483147770187307778405188218146967823138235109552370030745199319835640898137728</code></pre></div>
+
+<p>※DrRacketで実行すると帯分数風に表示されます 心眼で見てください</p>
+
+<p>100の平方根を求めただけで恐ろしいことに<br>
+実際やってみたら<code>(sqrt 100000000)</code>くらいで待ちきれなくなりました<br>
+精度の問題はなくなるはずですが計算速度の点でちょっと無理</p>
+
+<ul>
+<li><code>guess</code>の変化が極めて小さくなったら止まるような<code>good-enough?</code>を書け</li>
+</ul>
+
+<p>ちょっと無駄な計算をしますがまあこれで</p>
+
+<div><pre><code class="language-none">(define (good-enough? guess x)
+  (&lt; (/ (abs (- (improve guess x) guess)) guess) 0.0000001))</code></pre></div>
+
+<p>前回の計算結果を覚えておけば<code>(improve guess x)</code>を計算する必要はないんですけど<br>
+局所的な変更じゃすまないのでこれで</p>
+
+<p>結果は</p>
+
+<div><pre><code class="language-none">&gt; (sqrt 0.0001)
+0.010000000025490743
+&gt; (square (sqrt 0.0001))
+0.00010000000050981486</code></pre></div>
+
+<p>それなりにちゃんと求まりました</p>
+
+<div><pre><code class="language-none">&gt; (sqrt 1000000000000)
+1000000.0000000054
+&gt; (sqrt 10000000000000)
+3162277.6640104805</code></pre></div>
+
+<p>止まらなくなりました</p>
+
+<h3 id="toc_15">Exercise 1.8.</h3>
+
+<ul>
+<li>ニュートン法で立方根を求めるプログラムを書け</li>
+</ul>
+
+<p>式は書いてあるしプログラムでは同じことをするだけなので特に問題ないですね</p>
+
+<div><pre><code class="language-none">(define (cbrt x)
+  (cbrt-iter 1.0 x))
+
+(define (cbrt-iter guess x)
+  (if (cbrt-good-enough? guess x)
+      guess
+      (cbrt-iter (cbrt-improve guess x) x)))
+
+(define (cbrt-improve guess x)
+  (/ (+ (/ x (square guess)) (* 2 guess)) 3))
+
+(define (cbrt-good-enough? guess x)
+  (&lt; (abs (- (cube guess) x)) 0.001))
+
+(define (cube x)
+  (* x x x))</code></pre></div>
+
+<p>1ファイルでやってるので関数名の重複だけがちょっとめんどいです<br>
+ある程度は次節で解決しますが</p>
+
+<h2 id="toc_16">1.1.8 Procedures as Black-Box Abstractions</h2>
+
+<ul>
+<li><code>sqrt</code>は平方根を求めるという問題をいくつかの小問題に分割したその構造を反映した手続きの集まりと見ることができる</li>
+<li>ひとつひとつの手続きの目的は明確に決められており、他の問題を解く部品としても利用可能</li>
+<li>部品として利用する場合は目的だけが重要であり、手続きの細部を気にする必要はない</li>
+</ul>
+
+<p>そういう風に作るべき、とも言ってます</p>
+
+<ul>
+<li>仮引数の名前はそういった細部のひとつ</li>
+<li><code>(define (square x) (* x x))</code>と<code>(define (square y) (* y y))</code>は同じであるべき</li>
+</ul>
+
+<p>当たり前のようですが</p>
+
+<ul>
+<li>呼び出し側で使ってる<code>x</code>と、関数定義の中で使ってる<code>x</code>は別モノでなければならない</li>
+</ul>
+
+<p>ので注意<br>
+このようにして、手続きを部品として使う人は仮引数の名前を気にしなくて済むようになっています</p>
+
+<ul>
+<li>関数定義における仮引数の名前のことを「束縛変数」と呼ぶ</li>
+<li>変数が束縛されている範囲のことを「スコープ」と呼ぶ </li>
+<li>束縛されていない名前は「自由」であると言われる</li>
+<li>自由変数の名前を変えると意味が変わってしまう</li>
+</ul>
+
+<p>これも当たり前ですけどね<br>
+とは言っても<code>+</code>や<code>&lt;</code>も名前であるというのは忘れがち<br>
+忘れててうっかり別の手続き割り当てちゃった、なんてことはないですが</p>
+
+<p>さて仮引数の名前だけでなく関数名も隠したい場合があります<br>
+さっき立方根のところで<code>improve</code>という名前が使えないので<br>
+<code>cbrt-improve</code>という名前を使いました<br>
+関数ごとに名前を考えないといけないとしたら大変です</p>
+
+<p>そこで、関数定義の中に関数を定義することができるようになっています<br>
+そうすると、内部で定義された関数は外側からは見えないようになります<br>
+「ブロック構造」と呼ばれます</p>
+
+<div><pre><code class="language-none">(define (sqrt-blockstructure x)
+  (define (good-enough? guess)
+    (&lt; (abs (- (square guess) x)) 0.001))
+  (define (improve guess)
+    (average guess (/ x guess)))
+  (define (sqrt-iter guess)
+    (if (good-enough? guess)
+        guess
+        (sqrt-iter (improve guess))))
+  (sqrt-iter 1.0))</code></pre></div>
+
+<p>ここで、<code>good-enough?</code>や<code>improve</code>は<code>x</code>を引数に取ってないのに<br>
+本体内で参照できています<br>
+これは、（ソースコード上の）上位のブロックで定義された変数は<br>
+下位のブロックで参照できるというしくみのおかげで「静的スコープ」と呼ばれます</p>
+
+<p>ソースコード上の、ではなくて実行時の呼び出しで上位にある関数内の変数を<br>
+下位の関数から参照できるようになっているものが動的スコープ</p>
+
+<p><code>average</code>は他のプログラムを作るのにも役立つ部品なので隠してませんね<br>
+<code>sqrt-iter</code>を<code>iter</code>という名前にしても動くはずですがなぜそのままなんでしょうか<br>
+単にそのままにしただけかもしれませんが</p>
+
+
+
+
+</body>
+
+</html>
