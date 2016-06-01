@@ -269,3 +269,30 @@
         ((= kinds-of-coins 5) 50)))
 
 (check-eq? (count-change 100) 292)
+
+; Exercise 1.11.
+
+(define (f-1-11-r n)
+  (cond ((< n 3) n)
+        (else (+ (f-1-11-r (- n 1))
+                 (f-1-11-r (- n 2))
+                 (f-1-11-r (- n 3))))))
+(f-1-11-r 0)
+(f-1-11-r 1)
+(f-1-11-r 2)
+(f-1-11-r 3)
+(f-1-11-r 4)
+(f-1-11-r 5)
+
+(define (f-1-11-i n)
+  (define (iter a b c count)
+    (cond ((= count 0) c)
+          (else (iter (+ a b c) a b (- count 1)))))
+  (iter 2 1 0 n))
+
+(f-1-11-i 0)
+(f-1-11-i 1)
+(f-1-11-i 2)
+(f-1-11-i 3)
+(f-1-11-i 4)
+(f-1-11-i 5)
