@@ -277,12 +277,13 @@
         (else (+ (f-1-11-r (- n 1))
                  (f-1-11-r (- n 2))
                  (f-1-11-r (- n 3))))))
-(f-1-11-r 0)
-(f-1-11-r 1)
-(f-1-11-r 2)
-(f-1-11-r 3)
-(f-1-11-r 4)
-(f-1-11-r 5)
+
+(check-eq? (f-1-11-r 0) 0)
+(check-eq? (f-1-11-r 1) 1)
+(check-eq? (f-1-11-r 2) 2)
+(check-eq? (f-1-11-r 3) 3)
+(check-eq? (f-1-11-r 4) 6)
+(check-eq? (f-1-11-r 5) 11)
 
 (define (f-1-11-i n)
   (define (iter a b c count)
@@ -290,9 +291,22 @@
           (else (iter (+ a b c) a b (- count 1)))))
   (iter 2 1 0 n))
 
-(f-1-11-i 0)
-(f-1-11-i 1)
-(f-1-11-i 2)
-(f-1-11-i 3)
-(f-1-11-i 4)
-(f-1-11-i 5)
+(check-eq? (f-1-11-i 0) 0)
+(check-eq? (f-1-11-i 1) 1)
+(check-eq? (f-1-11-i 2) 2)
+(check-eq? (f-1-11-i 3) 3)
+(check-eq? (f-1-11-i 4) 6)
+(check-eq? (f-1-11-i 5) 11)
+
+; Exercise 1.12.
+
+(define (pascal n k)
+  (cond ((or (= k 1) (= k n)) 1)
+        (else (+ (pascal (- n 1) (- k 1))
+                 (pascal (- n 1) k)))))
+
+(check-eq? (pascal 1 1) 1)
+(check-eq? (pascal 3 1) 1)
+(check-eq? (pascal 3 3) 1)
+(check-eq? (pascal 5 3) 6)
+
