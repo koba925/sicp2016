@@ -310,3 +310,13 @@
 (check-eq? (pascal 3 3) 1)
 (check-eq? (pascal 5 3) 6)
 
+; Exercise 1.15.
+
+(define (sine angle)
+  (define (cube x) (* x x x))
+  (define (p x) (- (* 3 x) (* 4 (cube x))))
+  (if (not (> (abs angle) 0.1))
+      angle
+      (p (sine (/ angle 3.0)))))
+
+(check-= (sine 12.15) (sin 12.15) 0.01)
