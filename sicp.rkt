@@ -320,3 +320,30 @@
       (p (sine (/ angle 3.0)))))
 
 (check-= (sine 12.15) (sin 12.15) 0.01)
+
+; 1.2.4 Exponentiation
+
+;(define (expt b n)
+;  (if (= n 0)
+;      1
+;      (* b (expt b (- n 1)))))
+
+(define (expt b n)
+  (expt-iter b n 1))
+(define (expt-iter b counter product)
+  (if (= counter 0)
+      product
+      (expt-iter b (- counter 1) (* b product))))
+
+(check-eq? (expt 3 0) 1)
+(check-eq? (expt 3 3) 27)
+
+(define (fast-expt b n)
+  (cond ((= n 0) 1)
+        ((even? n) (square (fast-expt b (/ n 2))))
+        (else (* b (fast-expt b (- n 1))))))
+
+(check-eq? (expt 3 0) 1)
+(check-eq? (expt 3 3) 27)
+(check-eq? (expt 3 4) 81)
+
