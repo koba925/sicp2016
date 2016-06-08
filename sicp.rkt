@@ -383,5 +383,24 @@
           (else (iter (* a b) b (- n 1)))))
   (iter 1 b n))
 
-
 (check-eq? (fast-expt-ex1-16 5 7) (fast-expt 5 7))
+
+; Excercise 1.17.
+
+(define (o* a b)
+  (if (= b 1)
+      a
+      (+ a (o* a (- b 1)))))
+
+(check-eq? (o* 3 5) 15)
+
+;(define (double n) (* n 2)) ; 定義済み
+(define (halve n) (/ n 2))
+
+(define (fast-* a b)
+  (cond ((= b 0) 0)
+        ((even? b) (double (fast-* a (halve b))))
+        (else (+ a (fast-* a (- b 1))))))
+
+(check-eq? (fast-* 3 5) 15)
+
