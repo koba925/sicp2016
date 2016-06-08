@@ -270,6 +270,33 @@
 
 (check-eq? (count-change 100) 292)
 
+(define step 0)
+
+(define (count-change2 amount)
+  (set! step 0)
+  (cc2 amount 5)
+  step)
+
+(define (cc2 amount kinds-of-coins)
+  (set! step (+ step 1))
+  (cond ((= amount 0) 1)
+        ((or (< amount 0) (= kinds-of-coins 0)) 0)
+        (else (+ (cc2 amount
+                      (- kinds-of-coins 1))
+                 (cc2 (- amount
+                         (first-denomination kinds-of-coins))
+                      kinds-of-coins)))))
+
+(check-eq? (count-change2 11) 55)
+
+(define (list-cc n)
+  (define (iter c)
+    (display (count-change2 c)) (newline)
+    (cond ((< c n) (iter (+ c 1)))))
+  (iter 0))
+
+; (list-cc 100)
+
 ; Exercise 1.11.
 
 (define (f-1-11-r n)
@@ -347,3 +374,14 @@
 (check-eq? (expt 3 3) 27)
 (check-eq? (expt 3 4) 81)
 
+; Exercise 1.16
+
+(define (fast-expt-ex1-16 b n)
+  (define (iter a b n)
+    (cond ((= n 0) a)
+          ((even? n) (iter a (* b b) (/ n 2)))
+          (else (iter (* a b) b (- n 1)))))
+  (iter 1 b n))
+
+
+(check-eq? (fast-expt-ex1-16 5 7) (fast-expt 5 7))
