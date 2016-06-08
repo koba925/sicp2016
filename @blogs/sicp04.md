@@ -191,3 +191,22 @@ b.
         ((even? b) (double (fast-* a (halve b))))
         (else (+ a (fast-* a (- b 1))))))
 ```
+
+### Exercise 1.18.
+
+* じゃ今度は繰り返しプロセスでどうぞ
+
+結局書くのか
+
+```
+(define (fast-iter-* a b)
+  (define (iter c a b)
+    (cond ((= b 0) c)
+          ((even? b) (iter c (double a) (halve b)))
+          (else (iter (+ c a) a (- b 1)))))
+  (iter 0 a b))
+```
+
+こっちの方は当たり前に見える！
+(double a) (halve b)のあたりが
+

@@ -392,7 +392,7 @@
       a
       (+ a (o* a (- b 1)))))
 
-(check-eq? (o* 3 5) 15)
+(check-eq? (o* 5 7) 35)
 
 ;(define (double n) (* n 2)) ; 定義済み
 (define (halve n) (/ n 2))
@@ -402,5 +402,15 @@
         ((even? b) (double (fast-* a (halve b))))
         (else (+ a (fast-* a (- b 1))))))
 
-(check-eq? (fast-* 3 5) 15)
+(check-eq? (fast-* 5 7) 35)
 
+; Exercise 1.18.
+
+(define (fast-iter-* a b)
+  (define (iter c a b)
+    (cond ((= b 0) c)
+          ((even? b) (iter c (double a) (halve b)))
+          (else (iter (+ c a) a (- b 1)))))
+  (iter 0 a b))
+
+(check-eq? (fast-iter-* 5 7) 35)
