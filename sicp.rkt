@@ -434,3 +434,13 @@
   (fib-iter 1 0 0 1 n))
 
 (check-eq? (fib-ex1-19 20) (fib 20))
+
+; 1.2.5 Greatest Common Divisors
+
+(define (gcd a b)
+  (if (= b 0)
+      a
+      (gcd b (remainder a b))))
+
+(check-eq? (gcd 206 40) 2)
+(check-eq? (gcd 40 206) 2)
