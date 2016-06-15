@@ -482,6 +482,11 @@
           ((fermat-test n) (fast-prime? n (- times 1)))
           (else false)))
 
-(fast-prime? 53 10)
-(fast-prime? 51 10)
+(check-eq? (fast-prime? 53 100) #t)
+(check-eq? (fast-prime? 51 100) #f)
 
+; Exercise 1.21.
+
+(check-eq? (smallest-divisor 199) 199)
+(check-eq? (smallest-divisor 1999) 1999)
+(check-eq? (smallest-divisor 19999) 7)
