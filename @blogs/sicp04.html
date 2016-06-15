@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<title>sicp04</title>
+
+
+
+</head>
+
+<body>
+
+<h1 id="toc_0">SICPを読む(4)</h1>
+
+<h2 id="toc_1">1.2.3 Orders of Growth</h2>
+
+<ul>
+<li>プロセスがリソースを消費する度合いはプロセスによって大きく異なる</li>
+<li>入力が大きくなるにつれ、リソースがどれくらいかを表すには「オーダ」記法を使うのが便利</li>
+<li>問題のサイズをnで表し、そのときのリソースをR(n)で表す</li>
+<li>R(n)がf(n)と同じような感じで増えるときR(n)=Θ(f(n))と書く</li>
+</ul>
+
+<p>さすがに大ざっぱすぎるかな<br>
+まあいいや<br>
+テキスト見てください</p>
+
+<h3 id="toc_2">Exercise 1.14.</h3>
+
+<p>さっき6セントでやったから雰囲気はわかります<br>
+オーダは指数オーダになりそうだけどもっと詳しくわかるのかな？<br>
+何かの累乗になる、以上は難しそうな気もしますけど<br>
+fibでは具体的にΘ(((1+√5)/2)^n)まで書いてあったし</p>
+
+<p>やっぱり一応樹形図を描いてみます<br>
+それでわからなかったら置いとくことに</p>
+
+<p>●樹形図</p>
+
+<p>偏りの大きい2分木ができました</p>
+
+<p>硬貨の種類は変わらないとして、n円を両替するときの深さは最大のところでn+5-1=n+4<br>
+必要なスペースは木の深さで決まるからΘ(n)<br>
+これは問題ないです</p>
+
+<p>問題は計算ステップ数<br>
+2分木で深さがn+4だからいくら多くても2^(n+4)よりは少ないはず<br>
++4がくっついてるけど8*2^nだから気にしなくてOK<br>
+だからといってΘ(2^n)かというとそうとも限らない気がします<br>
+よくでてくるO記法と違ってここで出てくるΘは上下から挟まれてます</p>
+
+<blockquote>
+<p>k1f(n) ≦ R(n) ≦ k2f(n)</p>
+</blockquote>
+
+<p>完全に繁った2分木なら深さがnのときノードは2^(n+1)-1個あるはず<br>
+この樹形図は偏りが大きくてそれよりはかなり少ない<br>
+少ない度合いがnにかかわらず一定ならΘ(2^n)でいいんですが<br>
+そうでなければ2よりも小さい数のn乗に従うってことになります<br>
+基数が異なれば違うΘ<br>
+ぱっと見nが1増えたときに計算ステップ数が2倍になるとはちょっと思えません</p>
+
+<p>実際どれくらいの勢いで増えるんでしょうか</p>
+
+<div><pre><code class="language-none">(define step 0)
+
+(define (count-change2 amount)
+  (set! step 0)
+  (cc2 amount 5)
+  step)
+
+(define (cc2 amount kinds-of-coins)
+  (set! step (+ step 1))
+  (cond ((= amount 0) 1)
+        ((or (&lt; amount 0) (= kinds-of-coins 0)) 0)
+        (else (+ (cc2 amount
+                      (- kinds-of-coins 1))
+                 (cc2 (- amount
+                         (first-denomination kinds-of-coins))
+                      kinds-of-coins)))))
+
+(check-eq? (count-change2 11) 55)
+
+(define (list-cc n)
+  (define (iter c)
+    (display (count-change2 c)) (newline)
+    (cond ((&lt; c n) (iter (+ c 1)))))
+  (iter 0))</code></pre></div>
+
+<p>どれどれ</p>
+
+<div><pre><code class="language-none">&gt; (list-cc 100)
+1
+11
+13
+15
+:
+:
+3557
+3777
+3963
+4149
+:
+:
+13987
+14491
+14995
+15499</code></pre></div>
+
+<p>やっぱりnが1増えるごとに2倍になるとは思えません<br>
+ということはFibみたいに一般項を求めるレベルでキッチリやらないとΘは決まらないのかなあ<br>
+ちょっと難しそうです<br>
+スルー<br>
+（数学の問題だし）</p>
+
+<h3 id="toc_3">Exercise 1.15</h3>
+
+<p>a.<br>
+<code>(p (sine (/ angle 3.0)))</code>を見るとpを呼ぶごとに角度が1/3になることがわかります<br>
+12.15*(1/3)^nが0.1以下になる最初のnは5だから5回</p>
+
+<p>b.<br>
+1回再帰するごとに3倍大きな角度まで計算できるようになるので、計算ステップ数はlog3(a)<br>
+底が変わっても定数倍だからΘ(log(a))でいいかな<br>
+線形再帰だから必要なスペースも同じペースで成長してΘ(log(a))</p>
+
+<h2 id="toc_4">1.2.4 Exponentiation</h2>
+
+<ul>
+<li>べき乗を再帰で書くと、ステップ数もスペースもΘ(n)</li>
+<li>繰り返しで書くとステップ数はΘ(n)、スペースはΘ(1)</li>
+<li>もっとうまいやり方がある</li>
+</ul>
+
+<blockquote>
+<div><pre><code class="language-none">(define (fast-expt b n)
+  (cond ((= n 0) 1)
+        ((even? n) (square (fast-expt b (/ n 2))))
+        (else (* b (fast-expt b (- n 1))))))</code></pre></div>
+</blockquote>
+
+<ul>
+<li>これだと、1ステップ増えるごとに倍の大きさの数が処理できることになる</li>
+<li>ステップ数もスペースもΘ(log n)</li>
+<li>Θ(n)とΘ(log n)はnが大きくなるとびっくりするほど違う</li>
+<li>再帰ではなく繰り返しでも書ける</li>
+<li>でも再帰で書くほどストレートには書けない</li>
+</ul>
+
+<h3 id="toc_5">Exercise 1.16.</h3>
+
+<p>で、繰り返しでも書いてみなさいと</p>
+
+<ul>
+<li><code>(b^(n/2))^2 = (b^2)^(n/2)</code>を使え</li>
+<li><code>b^n</code>を計算するとき、<code>a = 1</code>から始めて、<code>a*b^n</code>がいつも一定になるようにしなさい</li>
+<li>「不変量」は繰り返しアルゴリズムを考えるときにとても役に立つ</li>
+</ul>
+
+<p>不変量とか不変式とかときどき出てきてなんか役に立つものらしいんですが<br>
+ありがたみがよくわかってません</p>
+
+<p><code>a = 1</code>、<code>b^n = 5^7</code>というところから始めてみます<br>
+<code>a*b^n = 1*5^7</code>です<br>
+7は奇数なのでたぶん<code>(b^(n/2))^2 = (b^2)^(n/2)</code>は使わず<br>
+<code>a*b^n</code>を一定に保って<code>1*5^7 = 5*5^6</code><br>
+つまり<code>a=5</code>、<code>b^n=5^6</code>となるのでしょう<br>
+これは問題なし</p>
+
+<p>6は偶数なのできっとここで<code>5^6 = (5^3)^2 = (5^2)^3</code>を使います<br>
+どう使うといいんでしょうね<br>
+<code>5*5^6 = 5*(5^3)^2 = 5*(5^2)^3</code> と書いてみてもaがどう変わるのか見えてきません<br>
+・・・<br>
+あ、bは一定でaとnだけが変わっていくと思ってたけどbも変わっていいのかな？</p>
+
+<p>そうか<br>
+こうか</p>
+
+<div><pre><code class="language-none">(define (fast-expt-ex1-16 b n)
+  (define (iter a b n)
+    (cond ((= n 0) a)
+          ((even? n) (iter a (* b b) (/ n 2)))
+          (else (iter (* a b) b (- n 1)))))
+  (iter 1 b n))</code></pre></div>
+
+<p>どれ</p>
+
+<div><pre><code class="language-none">&gt; (fast-expt-ex1-16 5 7)
+78125</code></pre></div>
+
+<p>できた<br>
+変な思い込みで時間を使ってしまいました</p>
+
+<p>不変量のありがたみはわかったようなわからないような</p>
+
+<h3 id="toc_6">Exercise 1.17.</h3>
+
+<ul>
+<li>同じようにして、かけ算をΘ(log n)の足し算で計算しなさい</li>
+</ul>
+
+<p>えーと繰り返しプロセスで、とは書いてないね</p>
+
+<div><pre><code class="language-none">(define (fast-* a b)
+  (cond ((= b 0) 0)
+        ((even? b) (double (fast-* a (halve b))))
+        (else (+ a (fast-* a (- b 1))))))</code></pre></div>
+
+<h3 id="toc_7">Exercise 1.18.</h3>
+
+<ul>
+<li>じゃ今度は繰り返しプロセスでどうぞ</li>
+</ul>
+
+<p>結局書くのか</p>
+
+<div><pre><code class="language-none">(define (fast-iter-* a b)
+  (define (iter c a b)
+    (cond ((= b 0) c)
+          ((even? b) (iter c (double a) (halve b)))
+          (else (iter (+ c a) a (- b 1)))))
+  (iter 0 a b))</code></pre></div>
+
+<p>こっちの方は当たり前に見える！<br>
+(double a) (halve b)のあたりが</p>
+
+<h3 id="toc_8">Exercise 1.19.</h3>
+
+<ul>
+<li>おんなじ戦法でFibもΘ(log n)でやっちゃうよ!</li>
+</ul>
+
+<p>FibがΘ(n)で計算できるくらいでは飽き足らないそうです<br>
+パターンは見えてきてます<br>
+半分にして2回やればいいんです（大ざっぱ</p>
+
+<p>それをFibでどうやってやるかは問題に書いてくれてあります<br>
+コレはペンと紙でやったほうが速いな</p>
+
+<p>以下<br>
+p&#39;とか書きたいところだけどmarkdownしにくいのでp&#39;をp#、p&#39;&#39;をp##とか書きます</p>
+
+<p><code>a,b</code>にTを適用したものを<code>a#,b#</code>とし、<br>
+<code>a#,b#</code>にTを適用したものを<code>a##,b##</code>とします</p>
+
+<p>つまり</p>
+
+<div><pre><code class="language-none">a# = bq+aq+ap
+b# = bp+aq
+a## = b#q+a#q+a#p
+b## = b#p+a#q</code></pre></div>
+
+<p>です<br>
+ここで</p>
+
+<div><pre><code class="language-none">a## = b#q+a#q+a#p
+    = (bp+aq)q+(bq+aq+ap)q+(bq+aq+ap)p
+    = b(2pq+q^2)+a(2pq+q^2)+a(p^2+q^2)</code></pre></div>
+
+<p>ですから<code>a# = bq+aq+ap</code>の形と見比べて</p>
+
+<div><pre><code class="language-none">p# = p^2+q^2
+q# = 2pq+q^2</code></pre></div>
+
+<p>としてやるとTpqを2回適用するかわりにTp#q#を1回適用すればいいことになります<br>
+（b##の方の計算は省略しますが結果は同じ）</p>
+
+<p>というわけでこう</p>
+
+<div><pre><code class="language-none">(define (fib-ex1-19 n)
+  (define (fib-iter a b p q count)
+    (cond ((= count 0) b)
+          ((even? count)
+           (fib-iter a
+                     b
+                     (+ (* p p) (* q q))
+                     (+ (* 2 p q) (* q q))
+                     (/ count 2)))
+          (else (fib-iter (+ (* b q) (* a q) (* a p))
+                          (+ (* b p) (* a q))
+                          p
+                          q
+                          (- count 1)))))
+  (fib-iter 1 0 0 1 n))</code></pre></div>
+
+<p>しかしこのやりかたなんか頭よすぎますね<br>
+まったくstraightforwardではない<br>
+ちょっと思いつける感じがしません<br>
+何かきっと裏に理論があるんだろうな</p>
+
+
+
+
+</body>
+
+</html>
