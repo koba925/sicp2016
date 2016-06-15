@@ -213,3 +213,102 @@ r6rsとかr7rsとかなら定義されてるのかな
 
 てことでいいんでしょうか
 
+### Exercise 1.22.
+
+racketにはruntimeてのがなかった
+current-millisecondsがそうかな
+ミリ秒じゃ使いものにならないっぽい
+
+current-inexact-millisecondsだ
+こっちは小数点以下も持ってくるからなんとか
+
+あとracketのifはelseがないと怒る
+代わりにwhenを使えばいいっぽい
+
+で、こんなことが書いてあるけど意味がわからない
+
+* timed-prime-testを使って
+* 指定した範囲の奇数が素数かどうか調べるプログラムを作り
+* 1000、10000、100000、1000000より大きい最初の３つの数を見つけろ
+
+わからない1
+timed-prime-testはnが素数かどうかを返してくれない
+
+わからない2
+範囲を指定しても最初の3つを見つけたら終わるのなら意味がない
+下限だけ指定するってことかな
+そういうときでも"specified range"って言う？
+
+脳内で問題を変形して書き直す
+
+```
+(define (timed-prime? n)
+  (define (start-timed-prime? start-time)
+    (define (elapsed-time finished-time)
+      (display n) (display " *** ") (display (- finished-time start-time))
+      (newline)
+      (- finished-time start-time))
+    (if (prime? n)
+        (elapsed-time (current-inexact-milliseconds))
+        #f))
+  (start-timed-prime? (current-inexact-milliseconds)))
+
+(define (search-for-primes lower count)
+  (define (iter n found total-time)
+    (define (next elapsed-time)
+      (cond (elapsed-time
+             (iter (+ n 2) (+ found 1) (+ total-time elapsed-time)))
+            (else
+             (iter (+ n 2) found total-time))))
+    (if (= found count)
+        total-time
+        (next (timed-prime? n))))
+  (/ (iter lower 0 0) count))
+```
+
+素数の時だけ結果を出力とかかかった時間の平均を出力とかしてたら
+あまり原型をとどめていない
+letさえあればもうちょっとわかりやすく書けると思うんですけど！（言い訳
+
+素数でなければ#f、素数ならばかかった時間を返すという仕様がわかりやすさ的には最大の問題
+まあいいや
+
+```
+> (search-for-primes 1001 3)
+1009 *** 0.00390625
+1013 *** 0.00390625
+1019 *** 0.00390625
+0.00390625
+> (search-for-primes 10001 3)
+10007 *** 0.009033203125
+10009 *** 0.010009765625
+10037 *** 0.009033203125
+0.009358723958333334
+> (search-for-primes 100001 3)
+100003 *** 0.029052734375
+100019 *** 0.030029296875
+100043 *** 0.030029296875
+0.029703776041666668
+> (search-for-primes 1000001 3)
+1000003 *** 0.093994140625
+1000033 *** 0.093017578125
+1000037 *** 0.093994140625
+0.09366861979166667
+```
+
+これ有効数字何桁なんだ？
+マイクロ秒の桁くらいまではあるっぽいな
+まあ気にせず全力で割り算しよう
+
+```
+> (/ 0.009358723958333334 0.00390625)
+2.3958333333333335
+> (/ 0.029703776041666668 0.009358723958333334)
+3.1739130434782608
+> (/ 0.09366861979166667 0.029703776041666668)
+3.1534246575342464
+> (sqrt 10)
+3.162277665175675
+```
+
+十分いい線いってると思いますがいかがでしょうか

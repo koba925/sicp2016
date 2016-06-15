@@ -490,3 +490,46 @@
 (check-eq? (smallest-divisor 199) 199)
 (check-eq? (smallest-divisor 1999) 1999)
 (check-eq? (smallest-divisor 19999) 7)
+
+; Exercise 1.22.
+
+; テキストのコード
+; 使えないので書き直す
+;(define (timed-prime-test n)
+;  (newline)
+;  (display n)
+;  (start-prime-test n (current-inexact-milliseconds)))
+;(define (start-prime-test n start-time)
+;  (when (prime? n)
+;    (report-prime (- (current-inexact-milliseconds) start-time))))
+;(define (report-prime elapsed-time)
+;  (display " *** ")
+;  (display elapsed-time))
+
+(define (timed-prime? n)
+  (define (start-timed-prime? start-time)
+    (define (elapsed-time finished-time)
+      (display n) (display " *** ") (display (- finished-time start-time))
+      (newline)
+      (- finished-time start-time))
+    (if (prime? n)
+        (elapsed-time (current-inexact-milliseconds))
+        #f))
+  (start-timed-prime? (current-inexact-milliseconds)))
+
+(define (search-for-primes lower count)
+  (define (iter n found total-time)
+    (define (next elapsed-time)
+      (cond (elapsed-time
+             (iter (+ n 2) (+ found 1) (+ total-time elapsed-time)))
+            (else
+             (iter (+ n 2) found total-time))))
+    (if (= found count)
+        total-time
+        (next (timed-prime? n))))
+  (/ (iter lower 0 0) count))
+
+(search-for-primes 1001 3)
+(search-for-primes 10001 3)
+(search-for-primes 100001 3)
+(search-for-primes 1000001 3)
