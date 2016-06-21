@@ -449,10 +449,19 @@
 
 (define (smallest-divisor n)
   (find-divisor n 2))
+; Modified for exercise 1.23.
+;(define (find-divisor n test-divisor)
+;  (cond ((> (square test-divisor) n) n)
+;        ((divides? n test-divisor)test-divisor)
+;        (else (find-divisor n (+ test-divisor 1)))))
+(define (next test-divisor)
+  (if (= test-divisor 2)
+      3
+      (+ test-divisor 2)))
 (define (find-divisor n test-divisor)
   (cond ((> (square test-divisor) n) n)
         ((divides? n test-divisor)test-divisor)
-        (else (find-divisor n (+ test-divisor 1)))))
+        (else (find-divisor n (next test-divisor)))))
 (define (divides? a b)
   (= (remainder a b) 0))
 (define (prime? n)
@@ -529,7 +538,27 @@
         (next (timed-prime? n))))
   (/ (iter lower 0 0) count))
 
-(search-for-primes 1001 3)
-(search-for-primes 10001 3)
-(search-for-primes 100001 3)
-(search-for-primes 1000001 3)
+;(search-for-primes 1001 3)
+;(search-for-primes 10001 3)
+;(search-for-primes 100001 3)
+;(search-for-primes 1000001 3)
+
+; Exercise 1.23.
+; See also 1.2.6
+
+(define (timed-prime-overhead n)
+  (define (start-timed-prime? start-time)
+    (define (elapsed-time finished-time)
+      (display n) (display " *** ") (display (- finished-time start-time))
+      (newline)
+      (- finished-time start-time))
+    (elapsed-time (current-inexact-milliseconds)))
+  (start-timed-prime? (current-inexact-milliseconds)))
+
+;(timed-prime-overhead 2)
+
+;(/ (- 0.004313151041666667 0.0009765625) (- 0.0030110677083333335 0.0009765625))
+;(/ (- 0.012288411458333334 0.0009765625) (- 0.007405598958333333 0.0009765625))
+;(/ (- 0.037272135416666664 0.0009765625) (- 0.019694010416666668 0.0009765625))
+;(/ (- 0.11832682291666667 0.0009765625) (- 0.06005859375 0.0009765625))
+

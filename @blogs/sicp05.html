@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<title>sicp05</title>
+
+
+
+</head>
+
+<body>
+
+<h1 id="toc_0">SICPを読む(5)</h1>
+
+<h2 id="toc_1">1.2.5 Greatest Common Divisors</h2>
+
+<ul>
+<li>a÷bの余りがrならばaとbの最大公約数はbとrの最大公約数に等しい</li>
+</ul>
+
+<p>知ってはいたけどまじめに考えたことなかったな<br>
+どういうことなのかな</p>
+
+<p>ch1-2-5-euclid-gcd.jpg</p>
+
+<p>そういうことか<br>
+これはΘでいうとどれくらいなんだろう</p>
+
+<p>速い時は1回で終わる<br>
+余りが1なら即おしまい</p>
+
+<p>遅いときってどんなときだ<br>
+a÷b=1でb÷rも1になって・・・をずっと繰り返すときが<br>
+一番なかなか減らないことになりそう</p>
+
+<p>たとえば(2,3)をスタートにして上の関係を逆にたどっていくと・・・</p>
+
+<p>(2,3)→(3,5)→(5,8)→...</p>
+
+<p>ん？これって・・・<br>
+Fibか<br>
+(0,1)から始めたら完全にFibだ<br>
+狙って出してるの？</p>
+
+<p>てすぐ下に書いてあったよ！（Lameの定理）</p>
+
+<p>Fibは指数的に増えていくから<br>
+GCDの計算ステップ数は対数的にしか増えていかないわけだな<br>
+感覚的には納得</p>
+
+<div><pre><code class="language-none">(define (gcd a b)
+  (if (= b 0)
+      a
+      (gcd b (remainder a b))))</code></pre></div>
+
+<p>これってa&lt;bだと動かないかな？<br>
+・・・<br>
+動くな<br>
+よくできてる</p>
+
+<h3 id="toc_2">Exercise 1.20.</h3>
+
+<p>normal-orderは必要になるまで引数を評価しないので</p>
+
+<div><pre><code class="language-none">  (gcd 206 40)
+= (if (= 40 0) 206 (gcd 40 (remainder 206 40)))
+= (gcd 40 (remainder 206 40))
+= (if (= (remainder 206 40) 0)
+      40
+      (gcd (remainder 206 40) (remainder 40 (remainder 206 40))))</code></pre></div>
+
+<p>ここでifの条件節を評価しなければならないので一度remainderを評価します<br>
+（でも他は評価しない）</p>
+
+<div><pre><code class="language-none">= (if (= 6 0)
+      40
+      (gcd (remainder 206 40) (remainder 40 (remainder 206 40))))
+= (gcd (remainder 206 40) (remainder 40 (remainder 206 40)))
+= (if (= (remainder 40 (remainder 206 40)) 0)
+      (remainder 206 40)
+      (gcd (remainder 40 (remainder 206 40))
+           (remainder (remainder 206 40)
+                      (remainder 40 (remainder 206 40)))))</code></pre></div>
+
+<p>かなり大変なことになってきました<br>
+またifの条件節だけ評価して</p>
+
+<div><pre><code class="language-none">= (if (= 4 0)
+      (remainder 206 40)
+      (gcd (remainder 40 (remainder 206 40))
+           (remainder (remainder 206 40)
+                      (remainder 40 (remainder 206 40)))))
+= (gcd (remainder 40 (remainder 206 40))
+       (remainder (remainder 206 40)
+                  (remainder 40 (remainder 206 40))))
+= (if (= (remainder (remainder 206 40)
+                    (remainder 40 (remainder 206 40))) 0)
+      (remainder 40 (remainder 206 40))
+      (gcd (remainder (remainder 206 40)
+                      (remainder 40 (remainder 206 40)))
+           (remainder (remainder 40 (remainder 206 40))
+                      (remainder (remainder 206 40)
+                                 (remainder 40 (remainder 206 40)))))
+= (if (= 2 0)
+      (remainder 40 (remainder 206 40))
+      (gcd (remainder (remainder 206 40)
+                      (remainder 40 (remainder 206 40)))
+           (remainder (remainder 40 (remainder 206 40))
+                      (remainder (remainder 206 40)
+                                 (remainder 40 (remainder 206 40)))))
+= (gcd (remainder (remainder 206 40)
+                  (remainder 40 (remainder 206 40)))
+       (remainder (remainder 40 (remainder 206 40))
+                  (remainder (remainder 206 40)
+                             (remainder 40 (remainder 206 40))))
+= (if (= (remainder (remainder 40 (remainder 206 40))
+                    (remainder (remainder 206 40)
+                               (remainder 40 (remainder 206 40)))) 0)
+      (remainder (remainder 206 40)
+                 (remainder 40 (remainder 206 40)))
+      (gcd ...))
+= (if (= 0 0)
+      (remainder (remainder 206 40)
+                 (remainder 40 (remainder 206 40)))
+      (gcd ...))
+= (remainder (remainder 206 40)
+             (remainder 40 (remainder 206 40)))
+= 2</code></pre></div>
+
+<p>見るからにnormal-orderつらい<br>
+というかつらかった</p>
+
+<p>remainderの評価回数は<br>
+ifの条件節のremainderを14回<br>
+実際にgcdを求めるremainderを4回<br>
+合計18回</p>
+
+<p>applicative-orderはもうちょっと楽なはず</p>
+
+<div><pre><code class="language-none">  (gcd 206 40)
+= (if (= 40 0) 206 (gcd 40 (remainder 206 40)))
+= (gcd 40 (remainder 206 40))
+= (gcd 40 6)
+= (if (= 6 0) 40 (gcd 6 (remainder 40 6)))
+= (gcd 6 (remainder 40 6))
+= (gcd 6 4)
+= (if (= 4 0) 6 (gcd 4 (remainder 6 4)))
+= (gcd 4 (remainder 6 4))
+= (gcd 4 2)
+= (if (= 2 0) 4 (gcd 2 (remainder 4 2)))
+= (gcd 2 (remainder 4 2))
+= (gcd 2 0)
+= (if (= 0 0) 2 (remainder 2 0))
+= 2</code></pre></div>
+
+<p>remainderの評価回数は4回<br>
+全然楽</p>
+
+<h2 id="toc_3">1.2.6 Example: Testing for Primality</h2>
+
+<ul>
+<li>この章では素数かどうかを判別する手法をふたつ紹介する</li>
+<li>ひとつはΘ(√n)のもの、もうひとつは「確率的な」アルゴリズムでΘ(log n)のもの</li>
+<li>ひとつ目は2から始めて順に割っていき、nまで割り切れなかったら素数というもの</li>
+<li>nまで全部割り算しなくても、√nまで割り算すれば十分なのでΘ(√n)</li>
+<li>Θ(log n)のアルゴリズムにはフェルマーの小定理を用いる</li>
+</ul>
+
+<blockquote>
+<p>フェルマーの小定理：<br>
+もしnが素数で、aがnより小さい正の整数であればa^nはnを法としてaに合同である</p>
+</blockquote>
+
+<p>よく出てくる定理だけれどもこれもなんか不思議</p>
+
+<ul>
+<li>a^nがaに合同でなければ、nは確実に素数ではない</li>
+<li>a^nがaに合同であればけっこうな確率でnは素数</li>
+<li>いろんなaで試せばnが素数である確率は上がる</li>
+<li>このアルゴリズムをフェルマーテストという</li>
+</ul>
+
+<p>コード自体は特筆することなし<br>
+そういえば#t、#fじゃなくてtrue、falseで書いている<br>
+素のr5rsだとエラーになるみたいだけど何の意図だろうか<br>
+r6rsとかr7rsとかなら定義されてるのかな<br>
+(racketでは定義済み)</p>
+
+<ul>
+<li>いままでのアルゴリズムは正しい答えが保証されていた</li>
+<li>フェルマーテストはおそらく正しい答えが出るのみ</li>
+<li>回数を増やせば確率は上がる</li>
+<li>ただし、フェルマーテストを騙す数がある</li>
+</ul>
+
+<p>カーマイケル数という</p>
+
+<div><pre><code class="language-none">&gt; (prime? 561)
+#f
+&gt; (fast-prime? 561 10000)
+#t</code></pre></div>
+
+<p>適当に選んだ大きな数がカーマイケル数である確率は<br>
+コンピュータが宇宙線で誤動作する確率より低いとのこと</p>
+
+<ul>
+<li>騙されないフェルマーテストの変種もある</li>
+<li>テストを繰り返せば好きなだけ間違いの確率を減らすことができる</li>
+<li>こういうアルゴリズムを確率的アルゴリズムという</li>
+</ul>
+
+<h3 id="toc_4">Exercise 1.21.</h3>
+
+<ul>
+<li>smallest-divisorで199、1999、19999の最小の約数を求めよ</li>
+</ul>
+
+<div><pre><code class="language-none">&gt; (smallest-divisor 199)
+199
+&gt; (smallest-divisor 1999)
+1999
+&gt; (smallest-divisor 19999)
+7</code></pre></div>
+
+<p>うわあびっくり（棒</p>
+
+<p>てことでいいんでしょうか</p>
+
+<h3 id="toc_5">Exercise 1.22.</h3>
+
+<p>racketにはruntimeてのがなかった<br>
+current-millisecondsがそうかな<br>
+ミリ秒じゃ使いものにならないっぽい</p>
+
+<p>current-inexact-millisecondsだ<br>
+こっちは小数点以下も持ってくるからなんとか</p>
+
+<p>あとracketのifはelseがないと怒る<br>
+代わりにwhenを使えばいいっぽい</p>
+
+<p>で、こんなことが書いてあるけど意味がわからない</p>
+
+<ul>
+<li>timed-prime-testを使って</li>
+<li>指定した範囲の奇数が素数かどうか調べるプログラムを作り</li>
+<li>1000、10000、100000、1000000より大きい最初の３つの数を見つけろ</li>
+<li>かかった時間はΘ(√n)になっているか</li>
+</ul>
+
+<p>わからない1<br>
+timed-prime-testはnが素数かどうかを返してくれない</p>
+
+<p>わからない2<br>
+範囲を指定しても最初の3つを見つけたら終わるのなら意味がない<br>
+下限だけ指定するってことかな<br>
+そういうときでも&quot;specified range&quot;って言う？</p>
+
+<p>問題に合わせて書き直す</p>
+
+<div><pre><code class="language-none">(define (timed-prime? n)
+  (define (start-timed-prime? start-time)
+    (define (elapsed-time finished-time)
+      (display n) (display &quot; *** &quot;) (display (- finished-time start-time))
+      (newline)
+      (- finished-time start-time))
+    (if (prime? n)
+        (elapsed-time (current-inexact-milliseconds))
+        #f))
+  (start-timed-prime? (current-inexact-milliseconds)))
+
+(define (search-for-primes lower count)
+  (define (iter n found total-time)
+    (define (next elapsed-time)
+      (cond (elapsed-time
+             (iter (+ n 2) (+ found 1) (+ total-time elapsed-time)))
+            (else
+             (iter (+ n 2) found total-time))))
+    (if (= found count)
+        total-time
+        (next (timed-prime? n))))
+  (/ (iter lower 0 0) count))</code></pre></div>
+
+<p>素数の時だけ結果を出力とかかかった時間の平均を出力とかしてたら<br>
+あまり原型をとどめていない<br>
+letさえあればもうちょっとわかりやすく書けると思うんですけど！（言い訳</p>
+
+<p>素数でなければ#f、素数ならばかかった時間を返すという仕様がわかりやすさ的には最大の問題<br>
+まあいいや</p>
+
+<div><pre><code class="language-none">&gt; (search-for-primes 1001 3)
+0.00390625
+&gt; (search-for-primes 10001 3)
+0.009358723958333334
+&gt; (search-for-primes 100001 3)
+0.029703776041666668
+&gt; (search-for-primes 1000001 3)
+0.09366861979166667</code></pre></div>
+
+<p>（結果の一部を省略）</p>
+
+<p>これ有効数字何桁なんだ？<br>
+マイクロ秒の桁くらいまではあるっぽいな<br>
+まあ気にせず全力で割り算しよう</p>
+
+<div><pre><code class="language-none">&gt; (/ 0.009358723958333334 0.00390625)
+2.3958333333333335
+&gt; (/ 0.029703776041666668 0.009358723958333334)
+3.1739130434782608
+&gt; (/ 0.09366861979166667 0.029703776041666668)
+3.1534246575342464
+&gt; (sqrt 10)
+3.162277665175675</code></pre></div>
+
+<p>1000→10000のところを除けば十分いい線いってると思いますがいかがでしょうか<br>
+1000→10000は固定費の影響が大きいってことかな<br>
+どこが固定費？</p>
+
+
+
+
+</body>
+
+</html>
