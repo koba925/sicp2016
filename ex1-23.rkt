@@ -48,6 +48,17 @@
 ; オーバーヘッド測定用の何もしないテスト
 (define (dummy n) #t)
 
+; 改善したdummy
+
+(define (dummy-prime? next)
+  (lambda (n) (= n (dummy-smallest-divisor n next))))
+
+(define (dummy-smallest-divisor n next)
+  (dummy-find-divisor n 2 next))
+
+(define (dummy-find-divisor n test-divisor next)
+  n)
+
 (define (average-time times test? lower count)
   (define (iter c total-time)
     (if (= c times)
@@ -58,9 +69,9 @@
 (define (slow-fast-ratio n)
   
   ;(printf "~nn=~a~n" n)
-  (let ((d (average-time 10 dummy n 3))
-        (s (average-time 10 (prime? slow-next) n 3))
-        (f (average-time 10 (prime? fast-next) n 3)))
+  (let ((d (average-time 100 (dummy-prime? slow-next) n 3))
+        (s (average-time 100 (prime? slow-next) n 3))
+        (f (average-time 100 (prime? fast-next) n 3)))
     ;(printf "d=~a~n" d)
     ;(printf "s=~a~n" s)
     ;(printf "f=~a~n" f)
