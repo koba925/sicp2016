@@ -132,3 +132,78 @@ expmodがΘ(log n)で
 > (carmichael-test 1729)
 #t
 ```
+
+### Exercise 1.28.
+
+* 欺かれることのないフェルマーテストの変形のひとつにミラー・ラビンテストがある
+* nが素数ならば正の整数a(<n)についてa^(n-1)≡1(mod n)である、というもの
+* expmodの中で自乗するとき、"nを法とする自明でない1の平方根"が見つかっていないかを確認せよ
+* "nを法とする自明でない1の平方根"とは1とn-1以外の数で、自乗すると1(mod n)であるもの
+* このような数が存在すればnは素数ではない
+* また素数でない奇数についてはaより小さい数のうちの半数以上がミラー／ラビンテストに失敗することがわかっている
+
+書きました
+
+```
+(define (miller-rabin-test n)
+  
+  (define (expmod base exp m)
+    (cond ((= exp 0) 1)
+          ((even? exp)
+           (let* ((root (expmod base (/ exp 2) m))
+                  (e (remainder (square root) m)))
+             (if (and (not (= root 1))
+                      (not (= root (- n 1)))
+                      (= e 1))
+                 0
+                 e)))
+          (else
+           (remainder (* base (expmod base (- exp 1) m))
+                      m))))
+  
+  (define (try-it a)
+    (= (expmod a (- n 1) n) 1))
+  
+  (try-it (+ 1 (random (- n 1)))))
+
+(define (fast-prime-ex1-28? n times)
+    (cond ((= times 0) true)
+          ((miller-rabin-test n) (fast-prime-ex1-28? n (- times 1)))
+          (else false)))
+```
+
+またしてもズルでlet*使いました
+その気になればlambdaでだって書けるもん
+
+expmodがnを知ってなきゃいけないので
+expmodをmiller-rabin-testの中に入れました
+nを引数で渡すのもアレなんで
+
+どういうテストを通ったら信用していいのかいまひとつわからないので
+10000までの数でfast-prime?と結果を比較します
+
+```
+(define (miller-rabin-test-test to)
+  (define (iter n)
+    (when (not (eq? (fast-prime-ex1-28? n 100)
+                    (fast-prime? n 100)))
+      (printf "~a~n" n))
+    (when (<= n to) (iter (+ n 1))))
+  (iter 2))
+```
+
+またしてもズ（略
+
+```
+> (miller-rabin-test-test 6601)
+561
+1105
+1729
+2465
+2821
+6601
+```
+
+想定どおりです
+
+
