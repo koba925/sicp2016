@@ -571,12 +571,12 @@
 (define (expmod-ex1-25 base exp m)
   (remainder (fast-expt base exp) m))
 
-(let ((s (current-inexact-milliseconds)))
-  (expmod 99999 100001 7)
-  (- (current-inexact-milliseconds) s))
-(let ((s (current-inexact-milliseconds)))
-  (expmod-ex1-25 99999 100001 7)
-  (- (current-inexact-milliseconds) s))
+;(let ((s (current-inexact-milliseconds)))
+;  (expmod 99999 100001 7)
+;  (- (current-inexact-milliseconds) s))
+;(let ((s (current-inexact-milliseconds)))
+;  (expmod-ex1-25 99999 100001 7)
+;  (- (current-inexact-milliseconds) s))
 
 (define (exp-time f)
   (let ((s (current-inexact-milliseconds)))
@@ -584,5 +584,49 @@
     (- (current-inexact-milliseconds) s)))
 
 ;(exec-time (expmod-ex1-25 99999 100001 7))
-(exp-time (lambda () (expmod 99999 100001 7)))
-(exp-time (lambda () (expmod-ex1-25 99999 100001 7)))
+;(exp-time (lambda () (expmod 99999 100001 7)))
+;(exp-time (lambda () (expmod-ex1-25 99999 100001 7)))
+
+; Exercise 1.26.
+
+(define (expmod-ex1-26 base exp m)
+  (cond ((= exp 0) 1)
+        ((even? exp)
+         (remainder (* (expmod-ex1-26 base (/ exp 2) m)
+                       (expmod-ex1-26 base (/ exp 2) m))
+                    m))
+        (else
+         (remainder (* base (expmod-ex1-26 base (- exp 1) m))
+                    m))))
+
+(check-eq? (expmod 7 9 5) (expmod-ex1-26 7 9 5))
+
+; Exercise 1.27.
+
+(define (carmichael-test n)
+  (define (iter a)
+    (cond ((= n a) #t)
+          ((= (expmod a n n) a) (iter (+ a 1)))
+          (else #f)))
+  (iter 1))
+
+(carmichael-test 2)
+(carmichael-test 3)
+(carmichael-test 4)
+(carmichael-test 5)
+(carmichael-test 6)
+
+(newline)
+
+(prime? 561)
+(carmichael-test 561)
+(prime? 1105)
+(carmichael-test 1105)
+(prime? 1729)
+(carmichael-test 1729)
+(prime? 2465)
+(carmichael-test 2465)
+(prime? 2821)
+(carmichael-test 2821)
+(prime? 6601)
+(carmichael-test 6601)

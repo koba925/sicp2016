@@ -76,4 +76,59 @@ fast-expの値はだいたい50万桁の数になります
 たぶんマクロで書くのが筋だと思われますが詳しくないので放置
 ライブラリに定義されてそうな気はするんですけどすぐには見つかりませんでした
 
+### Exercise 1.26.
 
+* Louisの書いたexpmodはなぜΘ(log n)ではなくΘ(n)で動くのか
+
+Louisの書いたexpmodでは、もとのexpmodでこのように書いていたところを
+
+```
+         (remainder (square (expmod base (/ exp 2) m))
+                    m))
+```
+
+このように書いてしまっています
+
+```
+         (remainder (* (expmod base (/ exp 2) m)
+                       (expmod base (/ exp 2) m))
+                    m))
+```
+
+元の書き方だと、expを半分にすることでexpmodの実行回数を半分にすることができ
+そのおかげでΘ(log n)のオーダで値を求めることができました
+
+ところがLouis版ではせっかく半分になったexpmodを2回実行しています
+これでは結局n回のかけ算が必要になってしまうのでオーダはΘ(n)になってしまいます
+
+### Exercise 1.27.
+
+* カーマイケル数がフェルマーテストを欺くことを示すプログラムを書け
+* つまり、a<nであるすべてのaについてa^n=a(mod n)であることを確かめるプログラムを書け
+
+```
+(define (carmichael-test n)
+  (define (iter a)
+    (cond ((= n a) #t)
+          ((= (expmod a n n) a) (iter (+ a 1)))
+          (else #f)))
+  (iter 1))
+```
+
+expmodがΘ(log n)で
+それをn回繰り返すのでΘ(nlog n)で動く素数判定プログラムということになります
+
+```
+> (prime? 561)
+#f
+> (carmichael-test 561)
+#t
+> (prime? 1105)
+#f
+> (carmichael-test 1105)
+#t
+> (prime? 1729)
+#f
+> (carmichael-test 1729)
+#t
+```
