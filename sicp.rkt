@@ -545,6 +545,7 @@
 
 ; Exercise 1.23.
 ; See also 1.2.6
+; See also ex1-23.rkt
 
 (define (timed-prime-overhead n)
   (define (start-timed-prime? start-time)
@@ -562,3 +563,26 @@
 ;(/ (- 0.037272135416666664 0.0009765625) (- 0.019694010416666668 0.0009765625))
 ;(/ (- 0.11832682291666667 0.0009765625) (- 0.06005859375 0.0009765625))
 
+; Exercise 1.24.
+; See also ex1-24.rkt
+
+; Exercise 1.25.
+
+(define (expmod-ex1-25 base exp m)
+  (remainder (fast-expt base exp) m))
+
+(let ((s (current-inexact-milliseconds)))
+  (expmod 99999 100001 7)
+  (- (current-inexact-milliseconds) s))
+(let ((s (current-inexact-milliseconds)))
+  (expmod-ex1-25 99999 100001 7)
+  (- (current-inexact-milliseconds) s))
+
+(define (exp-time f)
+  (let ((s (current-inexact-milliseconds)))
+    (f)
+    (- (current-inexact-milliseconds) s)))
+
+;(exec-time (expmod-ex1-25 99999 100001 7))
+(exp-time (lambda () (expmod 99999 100001 7)))
+(exp-time (lambda () (expmod-ex1-25 99999 100001 7)))

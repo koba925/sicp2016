@@ -69,9 +69,9 @@
 (define (slow-fast-ratio n)
   
   ;(printf "~nn=~a~n" n)
-  (let ((d (average-time 100 (dummy-prime? slow-next) n 3))
-        (s (average-time 100 (prime? slow-next) n 3))
-        (f (average-time 100 (prime? fast-next) n 3)))
+  (let ((d (average-time 10 (dummy-prime? slow-next) n 3))
+        (s (average-time 10 (prime? slow-next) n 3))
+        (f (average-time 10 (prime? fast-next) n 3)))
     ;(printf "d=~a~n" d)
     ;(printf "s=~a~n" s)
     ;(printf "f=~a~n" f)
