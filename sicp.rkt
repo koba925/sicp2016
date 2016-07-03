@@ -610,15 +610,15 @@
           (else #f)))
   (iter 1))
 
-(carmichael-test 2)
-(carmichael-test 3)
-(carmichael-test 4)
-(carmichael-test 5)
-(carmichael-test 6)
-(carmichael-test 7)
-(carmichael-test 8)
-(carmichael-test 9)
-(carmichael-test 10)
+;(carmichael-test 2)
+;(carmichael-test 3)
+;(carmichael-test 4)
+;(carmichael-test 5)
+;(carmichael-test 6)
+;(carmichael-test 7)
+;(carmichael-test 8)
+;(carmichael-test 9)
+;(carmichael-test 10)
 ;(newline)
 ;(prime? 561)
 ;(carmichael-test 561)
@@ -802,3 +802,45 @@
 ;(simpson-integral sin 0.0 pi 1000)
 ;(simpson-integral sin 0.0 pi 10000)
 ;(simpson-integral sin 0.0 pi 100000)
+
+; Exercise 1.30.
+
+(define (sum-i term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (+ result (term a)))))
+  (iter a 0))
+
+(define (sum-cubes-i a b)
+  (sum-i cube a inc b))
+
+;(sum-cubes-i 1 10)
+;(sum-cubes-i 2 4)
+
+(define (sum-integers-i a b)
+  (sum-i identity a inc b))
+
+;(sum-integers-i 1 10)
+;(sum-integers-i 3 6)
+
+(define (pi-sum-i a b)
+  (define (pi-term x)
+    (/ 1.0 (* x (+ x 2))))
+  (define (pi-next x)
+    (+ x 4))
+  (sum-i pi-term a pi-next b))
+
+;(* (pi-sum-i 1 3) 8)
+;(* (pi-sum-i 1 30) 8)
+;(* (pi-sum-i 1 300) 8)
+;(* (pi-sum-i 1 3000) 8)
+;(* (pi-sum-i 1 30000) 8)
+;(* (pi-sum-i 1 300000) 8)
+
+(define (integral-i f a b dx)
+  (define (add-dx a) (+ a dx))
+  (* (sum-i f (+ a (/ dx 2)) add-dx b) dx))
+
+;(integral-i cube 0 1 0.01)
+;(integral-i cube 0 1 0.001)
