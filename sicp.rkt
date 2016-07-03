@@ -610,11 +610,15 @@
           (else #f)))
   (iter 1))
 
-;(carmichael-test 2)
-;(carmichael-test 3)
-;(carmichael-test 4)
-;(carmichael-test 5)
-;(carmichael-test 6)
+(carmichael-test 2)
+(carmichael-test 3)
+(carmichael-test 4)
+(carmichael-test 5)
+(carmichael-test 6)
+(carmichael-test 7)
+(carmichael-test 8)
+(carmichael-test 9)
+(carmichael-test 10)
 ;(newline)
 ;(prime? 561)
 ;(carmichael-test 561)
@@ -665,5 +669,136 @@
     (when (<= n to) (iter (+ n 1))))
   (iter 2))
 
-(miller-rabin-test-test 6601)
+; (miller-rabin-test-test 6601)
 
+; 1.3.1 Procedures as Arguments
+
+(define (sum-integers a b)
+  (if (> a b)
+      0
+      (+ a (sum-integers (+ a 1) b))))
+
+(check-eq? (sum-integers 1 10) 55)
+(check-eq? (sum-integers 3 6) 18)
+
+(define (sum-cubes a b)
+  (if (> a b)
+      0
+      (+ (cube a) (sum-cubes (+ a 1) b))))
+
+(check-eq? (sum-cubes 1 10) (square 55))
+(check-eq? (sum-cubes 2 4) 99)
+
+(define (pi-sum a b)
+  (if (> a b)
+      0
+      (+ (/ 1.0 (* a (+ a 2))) (pi-sum (+ a 4) b))))
+
+;(* (pi-sum 1 3) 8)
+;(* (pi-sum 1 30) 8)
+;(* (pi-sum 1 300) 8)
+;(* (pi-sum 1 3000) 8)
+;(* (pi-sum 1 30000) 8)
+;(* (pi-sum 1 300000) 8)
+
+(define (sum term a next b)
+  (printf "a:~a~n" a)
+  (if (> a b)
+      0
+      (+ (term a)
+         (sum term (next a) next b))))
+
+(define (sum-cubes-h a b)
+  (sum cube a inc b))
+
+;(sum-cubes-h 1 10)
+;(sum-cubes-h 2 4)
+
+(define (identity x) x)
+(define (sum-integers-h a b)
+  (sum identity a inc b))
+
+;(sum-integers-h 1 10)
+;(sum-integers-h 3 6)
+
+(define (pi-sum-h a b)
+  (define (pi-term x)
+    (/ 1.0 (* x (+ x 2))))
+  (define (pi-next x)
+    (+ x 4))
+  (sum pi-term a pi-next b))
+
+;(* (pi-sum-h 1 3) 8)
+;(* (pi-sum-h 1 30) 8)
+;(* (pi-sum-h 1 300) 8)
+;(* (pi-sum-h 1 3000) 8)
+;(* (pi-sum-h 1 30000) 8)
+;(* (pi-sum-h 1 300000) 8)
+
+(define (integral f a b dx)
+  (define (add-dx a) (+ a dx))
+  (* (sum f (+ a (/ dx 2)) add-dx b) dx))
+
+;(integral cube 0 1 0.01)
+;(integral cube 0 1 0.001)
+
+; Exercise 1.29.
+
+(define (my-integral f a b n)
+  (define h (/ (- b a) n))
+  (define (add-dx a) (+ a h))
+  (printf "a:~a~n" a)
+  (printf "b:~a~n" b)
+  (printf "h:~a~n" h)
+  (printf "(f a):~a~n" (f a))
+  (printf "(f b):~a~n" (f b))
+  (* (/ h 2) (+ (f a) (* 2 (sum f (+ a h) add-dx (- b h))) (f b))))
+
+;(my-integral cube 0.0 1.0 100)
+;(my-integral cube 0.0 1.0 1000)
+
+(define (my-integral2 f a b n)
+  (define h (/ (- b a) n))
+  (define (iter c sum)
+    (if (> c (- n 1))
+        sum
+        (iter (+ c 1) (+ sum (f (+ a (/ (* (- b a) c) n)))))))
+  (* (/ h 2) (+ (f a) (* 2 (iter 1 0)) (f b))))
+
+;(my-integral2 cube 0.0 1.0 100)
+
+;(integral square 0.0 1.0 0.01)
+;(my-integral2 square 0.0 1.0 100)
+
+(define (simpson-integral f a b n)
+  (define r (- b a))
+  (define h (/ r n))
+  (define (iter c sum)
+    (define x (+ a (/ (* r c) n)))
+    (define co (cond ((or (= c 0) (= c n)) 1)
+                     ((odd? c) 4)
+                     (else 2)))
+    ;(printf "c co:~a ~a~n" c co)
+    (if (> c n)
+        sum
+        (iter (+ c 1)
+              (+ sum (* co (f x))))))
+  (* (/ h 3) (iter 0 0)))
+
+;(simpson-integral cube 0.0 1.0 10)
+;(simpson-integral cube 0.0 1.0 100)
+;(simpson-integral cube 0.0 1.0 1000)
+;(simpson-integral cube 0.0 1.0 10000)
+;(simpson-integral cube 0.0 1.0 100000)
+;
+;(simpson-integral (lambda (x) (* x x x x)) 0.0 1.0 10)
+;(simpson-integral (lambda (x) (* x x x x)) 0.0 1.0 100)
+;(simpson-integral (lambda (x) (* x x x x)) 0.0 1.0 1000)
+;(simpson-integral (lambda (x) (* x x x x)) 0.0 1.0 10000)
+;(simpson-integral (lambda (x) (* x x x x)) 0.0 1.0 100000)
+;
+;(simpson-integral sin 0.0 pi 10)
+;(simpson-integral sin 0.0 pi 100)
+;(simpson-integral sin 0.0 pi 1000)
+;(simpson-integral sin 0.0 pi 10000)
+;(simpson-integral sin 0.0 pi 100000)
