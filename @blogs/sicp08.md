@@ -182,6 +182,7 @@ sumやproductを定義するとこうなります
 
 なんとなく気分で繰り返しプロセス
 ますますごっちゃりしてきましたが気にしない
+リストがないからね！
 
 * aからbまでの素数の2乗の和を求めよ
 
@@ -201,4 +202,27 @@ sumやproductを定義するとこうなります
 ```
 
 しまったlambdaが出てくるのは次だった（白々しい
+## 1.3.2 Constructing Procedures Using Lambda
 
+* pi-termとかpi-nextとかいちいち定義するのめんどくさいよね
+
+そうだそうだ
+
+* lambdaを使え
+
+おっしゃるとおりにいたします
+
+* lambdaはdefineと同じ手続きを作る
+* 名前がついてないだけ
+* 実は`(define (plus4 x) (+ x 4))`は`(define plus4 (lambda (x) (+x 4)))`と同じ
+
+手習いと修行で飽きるほど書きました
+
+> ```
+>     (lambda             (x)             (+    x     4))>  the procedure   of an argument x  that adds  x and 4
+> ```
+
+負けるな日本人
+
+* lambda式も演算子として使える こんな感じ  
+`((lambda (x y z) (+ x y (square z))) 1 2 3)`
