@@ -81,13 +81,13 @@ sumと同様、productの中では第何項めかはわからないし
 3.140808529664476
 ```
 
-これはまたなかなか遅い収束ですね
+これはなかなか遅い収束ですね
 
 > Exercise 1.29.
 > 
 > ていうか係数が4242てなるのなんてsumじゃ書けなくない？
 
-ていうかそれ勘違いじゃない？
+ていうかそんなことなくない？
 
 ```
 (define (simpson-integral-h f a b n)
@@ -102,10 +102,67 @@ sumと同様、productの中では第何項めかはわからないし
 ```
 
 書けた
+
 とはいうもののテキスト的には`add-dx`で足し算していくのが流れな気もする
 いや、そうじゃないな
 引数にdxではなくnを取れと言ってるんだから`add-dx`にこだわることはないのか
 納得した
+
+式の中にcond書くとかやめたほうがいいかな
+defineすればいいだけだけど
+rとかhとかdefineしてるところは、再帰のたびにrとかhとか計算したりしてないだろうか
+ちゃんとやってくれてるかな
+自分が処理系作ったらきっと毎回計算するね
+
+### Exercise 1.32.
+
+* sumとかproductをもと一般化したaccumulateを書け
+
+combinerとnull-valueのふたつの引数が増えてます
+これはsumとproductの相違点をさらに指定できるようになったテンプレート
+
+これはなんか見たことあります
+ていうかfoldじゃね？
+でもなんかごちゃっとしてます
+何が変なんだろうと思ったら注51に書いてありました
+まだリストが出てきてないからです
+そりゃそうだ
+リストで渡せないから代わりに(term a next b)で数列を作ってるということですね
+
+答えは特に難しくないです
+
+```
+(define (accumulate combiner null-value term a next b)
+  (if (> a b)
+      null-value
+      (combiner (term a)
+                (accumulate combiner null-value term (next a) next b))))
+```
+
+sumやproductを定義するとこうなります
+
+```
+(define (sum-a term a next b)
+  (accumulate + 0 term a next b))
+(define (product-a term a next b)
+  (accumulate * 1 term a next b))
+```
+
+* 繰り返しプロセスでも書け
+
+はいはい
+
+```
+(define (accumulate-i combiner null-value term a next b)
+  (define (iter c ans)
+    (if (> c b)
+        ans
+        (iter (next c) (combiner (term c) ans))))
+  (iter a null-value))
+```
+
+もしかしてcはaっていう名前のほうがわかりやすいのかと思ったけどたぶんそんなことはない
+
 
 
 

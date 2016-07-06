@@ -739,8 +739,8 @@
   (define (add-dx a) (+ a dx))
   (* (sum f (+ a (/ dx 2)) add-dx b) dx))
 
-(integral cube 0 1 0.01)
-(integral cube 0 1 0.001)
+;(integral cube 0 1 0.01)
+;(integral cube 0 1 0.001)
 
 ; Exercise 1.29.
 
@@ -887,3 +887,31 @@
 ;(pi-p 1000)
 ;(pi-p 10000)
 
+; Exercise 1.32.
+
+(define (accumulate combiner null-value term a next b)
+  (if (> a b)
+      null-value
+      (combiner (term a)
+                (accumulate combiner null-value term (next a) next b))))
+
+; (accumulate + 0 cube 1 inc 3)
+; (accumulate * 1 identity 1 inc 4)
+
+(define (sum-a term a next b)
+  (accumulate + 0 term a next b))
+(define (product-a term a next b)
+  (accumulate * 1 term a next b))
+
+; (sum-a cube 1 inc 3)
+; (product-a identity 1 inc 4)
+
+(define (accumulate-i combiner null-value term a next b)
+  (define (iter c ans)
+    (if (> c b)
+        ans
+        (iter (next c) (combiner (term c) ans))))
+  (iter a null-value))
+
+; (accumulate-i + 0 cube 1 inc 3)
+; (accumulate-i * 1 identity 1 inc 4)
