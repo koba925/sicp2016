@@ -915,3 +915,24 @@
 
 ; (accumulate-i + 0 cube 1 inc 3)
 ; (accumulate-i * 1 identity 1 inc 4)
+
+(define (filtered-accumulate combiner null-value filter term a next b)
+  (define (iter c ans)
+    (if (> c b)
+        ans
+        (if (filter c)
+            (iter (next c) (combiner (term c) ans))
+            (iter (next c) ans))))
+  (iter a null-value))
+
+(define (sum-of-squares-of-primes a b)
+  (filtered-accumulate + 0 prime? square a inc b))
+
+;(sum-of-squares-of-primes 3 6)
+
+(define (product-of-relatively-primes n)
+  (filtered-accumulate * 1 (lambda (m) (= (gcd n m) 1))
+                       identity 1 inc n))
+
+(product-of-relatively-primes 8)
+

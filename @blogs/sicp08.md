@@ -163,6 +163,42 @@ sumやproductを定義するとこうなります
 
 もしかしてcはaっていう名前のほうがわかりやすいのかと思ったけどたぶんそんなことはない
 
+### Exercise 1.33.
 
+* accumulateをさらに一般化して項にフィルタをかけられるようにせよ
 
+ほいきた
+
+```
+(define (filtered-accumulate combiner null-value filter term a next b)
+  (define (iter c ans)
+    (if (> c b)
+        ans
+        (if (filter c)
+            (iter (next c) (combiner (term c) ans))
+            (iter (next c) ans))))
+  (iter a null-value))
+```
+
+なんとなく気分で繰り返しプロセス
+ますますごっちゃりしてきましたが気にしない
+
+* aからbまでの素数の2乗の和を求めよ
+
+```
+(define (sum-of-squares-of-primes a b)
+  (filtered-accumulate + 0 prime? square a inc b))
+```
+
+* nまでの正の整数のうちnと互いに素なものの和を求めよ
+
+互いに素っていうのはGCDが1ってことだから
+
+```
+(define (product-of-relatively-primes n)
+  (filtered-accumulate * 1 (lambda (m) (= (gcd n m) 1))
+                       identity 1 inc n))
+```
+
+しまったlambdaが出てくるのは次だった（白々しい
 
