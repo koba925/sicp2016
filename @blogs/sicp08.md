@@ -12,3 +12,100 @@
         (iter (next a) (+ result (term a)))))
   (iter a 0))
 ```
+
+### Exercise 1.31.
+
+* sumは高階手続きで抽象できる膨大な例のひとつにすぎない
+* sumと同様にしてproductを定義し、factorialとπを計算せよ
+
+productは簡単
+
+```
+(define (product term a next b)
+  (if (> a b)
+      1
+      (* (term a) (product term (next a) next b))))
+```
+
+factorialはsum-integerみたいなもの
+
+```
+(define (factorial-p n)
+  (product identity 1 inc n))
+```
+
+```
+> (factorial-p 3)
+6
+```
+
+πはこの式をもとに計算します
+
+```
+     2・4・4・6・6・8・・・
+π/4= --------------------
+     3・3・5・5・7・7・・・
+```
+
+不思議ですねえ
+
+しかしこれ、どうやってproductにかけましょうか
+sumと同様、productの中では第何項めかはわからないし
+て、第a項めってことにすればいいのか
+2/3とか6/7をaにしなきゃいけない気になってた
+
+さらに作りやすいように式をこんな風に変形
+
+```
+π=4*2*(4/3)^2*(6/5)^2/7 
+```
+
+こうしなくてもif使えば書けると思いますけど
+
+```
+(define (pi-p n)
+  (define (term n)
+    (square (/ (+ (* 2 n) 2.0) (+ (* 2 n) 1.0))))
+  (/ (* 4 2 (product term 1 inc n))
+     (+ (* 2 n) 3)))
+```
+
+やってみます
+
+```
+> (pi-p 10)
+3.0740551602804405
+> (pi-p 100)
+3.133864293497813
+> (pi-p 1000)
+3.140808529664476
+```
+
+これはまたなかなか遅い収束ですね
+
+> Exercise 1.29.
+> 
+> ていうか係数が4242てなるのなんてsumじゃ書けなくない？
+
+ていうかそれ勘違いじゃない？
+
+```
+(define (simpson-integral-h f a b n)
+  (define r (- b a))
+  (define h (/ r n))
+  (define (term k)
+    (* (cond ((or (= k 0) (= k n)) 1)
+             ((odd? k) 4)
+             (else 2))
+       (f (+ a (/ (* r k) n)))))
+  (* (/ h 3) (sum term 0 inc n)))
+```
+
+書けた
+とはいうもののテキスト的には`add-dx`で足し算していくのが流れな気もする
+いや、そうじゃないな
+引数にdxではなくnを取れと言ってるんだから`add-dx`にこだわることはないのか
+納得した
+
+
+

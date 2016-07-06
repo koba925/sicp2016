@@ -739,8 +739,8 @@
   (define (add-dx a) (+ a dx))
   (* (sum f (+ a (/ dx 2)) add-dx b) dx))
 
-;(integral cube 0 1 0.01)
-;(integral cube 0 1 0.001)
+(integral cube 0 1 0.01)
+(integral cube 0 1 0.001)
 
 ; Exercise 1.29.
 
@@ -803,6 +803,22 @@
 ;(simpson-integral sin 0.0 pi 10000)
 ;(simpson-integral sin 0.0 pi 100000)
 
+(define (simpson-integral-h f a b n)
+  (define r (- b a))
+  (define h (/ r n))
+  (define (term k)
+    (* (cond ((or (= k 0) (= k n)) 1)
+             ((odd? k) 4)
+             (else 2))
+       (f (+ a (/ (* r k) n)))))
+  (* (/ h 3) (sum term 0 inc n)))
+
+;(simpson-integral-h sin 0.0 pi 10)
+;(simpson-integral-h sin 0.0 pi 100)
+;(simpson-integral-h sin 0.0 pi 1000)
+;(simpson-integral-h sin 0.0 pi 10000)
+;(simpson-integral-h sin 0.0 pi 100000)
+
 ; Exercise 1.30.
 
 (define (sum-i term a next b)
@@ -844,3 +860,30 @@
 
 ;(integral-i cube 0 1 0.01)
 ;(integral-i cube 0 1 0.001)
+
+; Exercise 1.31.
+
+(define (product term a next b)
+  ;(printf "~a ~a ~a~n" a (term a) b)
+  (if (> a b)
+      1
+      (* (term a) (product term (next a) next b))))
+
+(define (factorial-p n)
+  (product identity 1 inc n))
+
+;(factorial-p 1)
+;(factorial-p 2)
+;(factorial-p 3)
+
+(define (pi-p n)
+  (define (term n)
+    (square (/ (+ (* 2 n) 2.0) (+ (* 2 n) 1.0))))
+  (/ (* 4 2 (product term 1 inc n))
+     (+ (* 2 n) 3)))
+
+;(pi-p 10)
+;(pi-p 100)
+;(pi-p 1000)
+;(pi-p 10000)
+
