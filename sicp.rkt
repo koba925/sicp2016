@@ -702,7 +702,7 @@
 ;(* (pi-sum 1 300000) 8)
 
 (define (sum term a next b)
-  (printf "a:~a~n" a)
+  ;(printf "a:~a~n" a)
   (if (> a b)
       0
       (+ (term a)
@@ -934,5 +934,26 @@
   (filtered-accumulate * 1 (lambda (m) (= (gcd n m) 1))
                        identity 1 inc n))
 
-(product-of-relatively-primes 8)
+;(product-of-relatively-primes 8)
 
+; 1.3.2 Constructing Procedures Using Lambda
+
+(define (pi-sum-l a b)
+  (sum (lambda (x) (/ 1.0 (* x (+ x 2))))
+       a
+       (lambda (x) (+ x 4))
+       b))
+
+;(* (pi-sum-l 1 300000) 8)
+
+(define (integral-l f a b dx)
+  (* (sum f
+          (+ a (/ dx 2.0))
+          (lambda (x) (+ x dx))
+          b)
+     dx))
+
+;(integral cube 0 1 0.01)
+;(integral-l cube 0 1 0.01)
+;(integral cube 0 1 0.001)
+;(integral-l cube 0 1 0.001)
