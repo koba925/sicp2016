@@ -246,5 +246,32 @@ lambdaとletが出てきて、letrecは内部defineで代用できますので
 ローカル変数はletで定義するよという意味
 letとletrecだとなれない人にはまぎらわしいってことかな
 
+### Exercise 1.34.
+
+* `(define (f g) (g 2))`として`(f f)`を評価するとどうなるか
+
+lambdaやletと関係あるのかなあ
+
+```
+  (f f)
+= (f 2)
+= (2 2)
+```
+
+てなるよねえ
+
+```
+> (f f)
+application: not a procedure;
+```
+
+激しく同意です
+
+`(f (lambda (z) (* z (+ z 1))))`とかの例を見せたかっただけ？
+
+
+
+
+
 
 

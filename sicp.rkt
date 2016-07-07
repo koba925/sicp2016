@@ -208,9 +208,9 @@
 (check-eq? (A 2 4) 65536)
 (check-eq? (A 3 3) 65536)
 
-(define (f n) (A 0 n))
-(define (g n) (A 1 n))
-(define (h n) (A 2 n))
+;(define (f n) (A 0 n))
+;(define (g n) (A 1 n))
+;(define (h n) (A 2 n))
 
 ;(f 1)
 ;(f 2)
@@ -957,3 +957,10 @@
 ;(integral-l cube 0 1 0.01)
 ;(integral cube 0 1 0.001)
 ;(integral-l cube 0 1 0.001)
+
+; Exercise 1.34.
+;(define (f g) (g 2))
+
+;(f square)
+;(f (lambda (z) (* z (+ z 1))))
+;(f f)
