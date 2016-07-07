@@ -269,7 +269,12 @@ application: not a procedure;
 
 `(f (lambda (z) (* z (+ z 1))))`とかの例を見せたかっただけ？
 
+## 1.3.3 Procedures as General Methods
 
+* 特定の数から独立した数値計算の抽象化と、特定の関数から独立した汎用的手法の抽象化を見てきた
+* さらにふたつの例を見ていく
+
+まだ数学っぽい話が続きますよ
 
 
 
