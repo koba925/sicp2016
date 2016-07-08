@@ -276,7 +276,27 @@ application: not a procedure;
 
 まだ数学っぽい話が続きますよ
 
+### Finding roots of equations by the half-interval method
 
+* 二分法はf(x)=0となるxを見つけるための強力な手法
 
+このあと二分法を言葉で説明してますがコードのまんまですね
+コードが文章のまんまなのか
 
+```
+(define (search f neg-point pos-point)
+  (let ((midpoint (/ (+ neg-point pos-point) 2)))
+    (if (close-enough? neg-point pos-point)
+        midpoint
+        (let ((test-value (f midpoint)))
+          (cond ((positive? test-value)
+                 (search f neg-point midpoint))
+                ((negative? test-value)
+                 (search f midpoint pos-point))
+                (else midpoint))))))
+```
+
+プログラミングが必修になるなら、
+数学の教科書に二分法はこうです、ってコードで書くようにしてみたらどうでしょうかね
+一石二鳥じゃないでしょうか（半分くらい本気
 
