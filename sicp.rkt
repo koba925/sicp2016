@@ -1009,7 +1009,7 @@
   (define (close-enough? v1 v2)
     (< (abs (- v1 v2)) tolerance))
   (define (try guess)
-    ; (printf "~a~n" guess)
+    (display guess) (newline)
     (let ((next (f guess)))
       (if (close-enough? guess next)
           next
@@ -1031,9 +1031,11 @@
 
 ; Exercise 1.35.
 
-(define φ (fixed-point (lambda (x) (+ 1 (/ 1 x))) 1.0))
+;(define φ (fixed-point (lambda (x) (+ 1 (/ 1 x))) 1.0))
 
-φ
-(+ 1 (/ 1 φ))
+;φ
+;(+ 1 (/ 1 φ))
 
+; Exercise 1.36.
 
+(fixed-point (lambda (x) (/ (log 1000) (log x))) 2.0)
