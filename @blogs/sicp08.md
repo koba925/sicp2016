@@ -34,11 +34,6 @@ factorialはsum-integerみたいなもの
   (product identity 1 inc n))
 ```
 
-```
-> (factorial-p 3)
-6
-```
-
 πはこの式をもとに計算します
 
 ```
@@ -52,9 +47,9 @@ factorialはsum-integerみたいなもの
 しかしこれ、どうやってproductにかけましょうか
 sumと同様、productの中では第何項めかはわからないし
 て、第a項めってことにすればいいのか
-2/3とか6/7をaにしなきゃいけない気になってた
+aは2/3とか6/7にしなきゃいけない気になってた
 
-さらに作りやすいように式をこんな風に変形
+あと、作りやすいように式をこんな風に変形
 
 ```
 π=4*2*(4/3)^2*(6/5)^2/7 
@@ -268,35 +263,4 @@ application: not a procedure;
 激しく同意です
 
 `(f (lambda (z) (* z (+ z 1))))`とかの例を見せたかっただけ？
-
-## 1.3.3 Procedures as General Methods
-
-* 特定の数から独立した数値計算の抽象化と、特定の関数から独立した汎用的手法の抽象化を見てきた
-* さらにふたつの例を見ていく
-
-まだ数学っぽい話が続きますよ
-
-### Finding roots of equations by the half-interval method
-
-* 二分法はf(x)=0となるxを見つけるための強力な手法
-
-このあと二分法を言葉で説明してますがコードのまんまですね
-コードが文章のまんまなのか
-
-```
-(define (search f neg-point pos-point)
-  (let ((midpoint (/ (+ neg-point pos-point) 2)))
-    (if (close-enough? neg-point pos-point)
-        midpoint
-        (let ((test-value (f midpoint)))
-          (cond ((positive? test-value)
-                 (search f neg-point midpoint))
-                ((negative? test-value)
-                 (search f midpoint pos-point))
-                (else midpoint))))))
-```
-
-プログラミングが必修になるなら、
-数学の教科書に二分法はこうです、ってコードで書くようにしてみたらどうでしょうかね
-一石二鳥じゃないでしょうか（半分くらい本気
 

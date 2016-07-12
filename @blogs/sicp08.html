@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<title>sicp08</title>
+
+
+
+</head>
+
+<body>
+
+<h1 id="toc_0">SICPを読む(8)</h1>
+
+<h3 id="toc_1">Exercise 1.30.</h3>
+
+<ul>
+<li>sumを線形繰り返しプロセスに書き換えよ</li>
+</ul>
+
+<div><pre><code class="language-none">(define (sum-i term a next b)
+  (define (iter a result)
+    (if (&gt; a b)
+        result
+        (iter (next a) (+ result (term a)))))
+  (iter a 0))</code></pre></div>
+
+<h3 id="toc_2">Exercise 1.31.</h3>
+
+<ul>
+<li>sumは高階手続きで抽象できる膨大な例のひとつにすぎない</li>
+<li>sumと同様にしてproductを定義し、factorialとπを計算せよ</li>
+</ul>
+
+<p>productは簡単</p>
+
+<div><pre><code class="language-none">(define (product term a next b)
+  (if (&gt; a b)
+      1
+      (* (term a) (product term (next a) next b))))</code></pre></div>
+
+<p>factorialはsum-integerみたいなもの</p>
+
+<div><pre><code class="language-none">(define (factorial-p n)
+  (product identity 1 inc n))</code></pre></div>
+
+<p>πはこの式をもとに計算します</p>
+
+<div><pre><code class="language-none">     2・4・4・6・6・8・・・
+π/4= --------------------
+     3・3・5・5・7・7・・・</code></pre></div>
+
+<p>不思議ですねえ</p>
+
+<p>しかしこれ、どうやってproductにかけましょうか<br>
+sumと同様、productの中では第何項めかはわからないし<br>
+て、第a項めってことにすればいいのか<br>
+aは2/3とか6/7にしなきゃいけない気になってた</p>
+
+<p>あと、作りやすいように式をこんな風に変形</p>
+
+<div><pre><code class="language-none">π=4*2*(4/3)^2*(6/5)^2/7 </code></pre></div>
+
+<p>こうしなくてもif使えば書けると思いますけど</p>
+
+<div><pre><code class="language-none">(define (pi-p n)
+  (define (term n)
+    (square (/ (+ (* 2 n) 2.0) (+ (* 2 n) 1.0))))
+  (/ (* 4 2 (product term 1 inc n))
+     (+ (* 2 n) 3)))</code></pre></div>
+
+<p>やってみます</p>
+
+<div><pre><code class="language-none">&gt; (pi-p 10)
+3.0740551602804405
+&gt; (pi-p 100)
+3.133864293497813
+&gt; (pi-p 1000)
+3.140808529664476</code></pre></div>
+
+<p>これはなかなか遅い収束ですね</p>
+
+<blockquote>
+<p>Exercise 1.29.</p>
+
+<p>ていうか係数が4242てなるのなんてsumじゃ書けなくない？</p>
+</blockquote>
+
+<p>ていうかそんなことなくない？</p>
+
+<div><pre><code class="language-none">(define (simpson-integral-h f a b n)
+  (define r (- b a))
+  (define h (/ r n))
+  (define (term k)
+    (* (cond ((or (= k 0) (= k n)) 1)
+             ((odd? k) 4)
+             (else 2))
+       (f (+ a (/ (* r k) n)))))
+  (* (/ h 3) (sum term 0 inc n)))</code></pre></div>
+
+<p>書けた</p>
+
+<p>とはいうもののテキスト的には<code>add-dx</code>で足し算していくのが流れな気もする<br>
+いや、そうじゃないな<br>
+引数にdxではなくnを取れと言ってるんだから<code>add-dx</code>にこだわることはないのか<br>
+納得した</p>
+
+<p>式の中にcond書くとかやめたほうがいいかな<br>
+defineすればいいだけだけど<br>
+rとかhとかdefineしてるところは、再帰のたびにrとかhとか計算したりしてないだろうか<br>
+ちゃんとやってくれてるかな<br>
+自分が処理系作ったらきっと毎回計算するね</p>
+
+<h3 id="toc_3">Exercise 1.32.</h3>
+
+<ul>
+<li>sumとかproductをもと一般化したaccumulateを書け</li>
+</ul>
+
+<p>combinerとnull-valueのふたつの引数が増えてます<br>
+これはsumとproductの相違点をさらに指定できるようになったテンプレート</p>
+
+<p>これはなんか見たことあります<br>
+ていうかfoldじゃね？<br>
+でもなんかごちゃっとしてます<br>
+何が変なんだろうと思ったら注51に書いてありました<br>
+まだリストが出てきてないからです<br>
+そりゃそうだ<br>
+リストで渡せないから代わりに(term a next b)で数列を作ってるということですね</p>
+
+<p>答えは特に難しくないです</p>
+
+<div><pre><code class="language-none">(define (accumulate combiner null-value term a next b)
+  (if (&gt; a b)
+      null-value
+      (combiner (term a)
+                (accumulate combiner null-value term (next a) next b))))</code></pre></div>
+
+<p>sumやproductを定義するとこうなります</p>
+
+<div><pre><code class="language-none">(define (sum-a term a next b)
+  (accumulate + 0 term a next b))
+(define (product-a term a next b)
+  (accumulate * 1 term a next b))</code></pre></div>
+
+<ul>
+<li>繰り返しプロセスでも書け</li>
+</ul>
+
+<p>はいはい</p>
+
+<div><pre><code class="language-none">(define (accumulate-i combiner null-value term a next b)
+  (define (iter c ans)
+    (if (&gt; c b)
+        ans
+        (iter (next c) (combiner (term c) ans))))
+  (iter a null-value))</code></pre></div>
+
+<p>もしかしてcはaっていう名前のほうがわかりやすいのかと思ったけどたぶんそんなことはない</p>
+
+<h3 id="toc_4">Exercise 1.33.</h3>
+
+<ul>
+<li>accumulateをさらに一般化して項にフィルタをかけられるようにせよ</li>
+</ul>
+
+<p>ほいきた</p>
+
+<div><pre><code class="language-none">(define (filtered-accumulate combiner null-value filter term a next b)
+  (define (iter c ans)
+    (if (&gt; c b)
+        ans
+        (if (filter c)
+            (iter (next c) (combiner (term c) ans))
+            (iter (next c) ans))))
+  (iter a null-value))</code></pre></div>
+
+<p>なんとなく気分で繰り返しプロセス<br>
+ますますごっちゃりしてきましたが気にしない<br>
+リストがないからね！</p>
+
+<ul>
+<li>aからbまでの素数の2乗の和を求めよ</li>
+</ul>
+
+<div><pre><code class="language-none">(define (sum-of-squares-of-primes a b)
+  (filtered-accumulate + 0 prime? square a inc b))</code></pre></div>
+
+<ul>
+<li>nまでの正の整数のうちnと互いに素なものの和を求めよ</li>
+</ul>
+
+<p>互いに素っていうのはGCDが1ってことだから</p>
+
+<div><pre><code class="language-none">(define (product-of-relatively-primes n)
+  (filtered-accumulate * 1 (lambda (m) (= (gcd n m) 1))
+                       identity 1 inc n))</code></pre></div>
+
+<p>しまったlambdaが出てくるのは次だった（白々しい</p>
+
+<h2 id="toc_5">1.3.2 Constructing Procedures Using Lambda</h2>
+
+<ul>
+<li>pi-termとかpi-nextとかいちいち定義するのめんどくさいよね</li>
+</ul>
+
+<p>そうだそうだ</p>
+
+<ul>
+<li>lambdaを使え</li>
+</ul>
+
+<p>おっしゃるとおりにいたします</p>
+
+<ul>
+<li>lambdaはdefineと同じ手続きを作る</li>
+<li>名前がついてないだけ</li>
+<li>実は<code>(define (plus4 x) (+ x 4))</code>は<code>(define plus4 (lambda (x) (+x 4)))</code>と同じ</li>
+</ul>
+
+<p>手習いと修行で飽きるほど書きました</p>
+
+<blockquote>
+<div><pre><code class="language-none">    (lambda             (x)             (+    x     4))
+ the procedure   of an argument x  that adds  x and 4</code></pre></div>
+</blockquote>
+
+<p>負けるな日本人</p>
+
+<ul>
+<li>lambda式も演算子として使える こんな感じ<br>
+<code>((lambda (x y z) (+ x y (square z))) 1 2 3)</code></li>
+</ul>
+
+<h2 id="toc_6">Using let to create local variables</h2>
+
+<ul>
+<li>lambdaはローカル変数を作るのにも使える</li>
+<li>これは使いでがあるので、もっと便利に使えるようにletというのがある</li>
+<li>letは特に新しいしくみは必要としてなくてただのシンタックスシュガー</li>
+</ul>
+
+<p>このへんももうお手のもの<br>
+あとletで定義した変数のスコープの話<br>
+letの本体でしか使えません</p>
+
+<p>lambdaとletが出てきて、letrecは内部defineで代用できますので<br>
+手持ちの武器はこれで全部使えるようになったかな（少な</p>
+
+<ul>
+<li>letは内部defineで代用できる</li>
+<li>でも内部defineで定義するのは内部手続だけにしておくよ</li>
+</ul>
+
+<p>ローカル変数はletで定義するよという意味<br>
+letとletrecだとなれない人にはまぎらわしいってことかな</p>
+
+<h3 id="toc_7">Exercise 1.34.</h3>
+
+<ul>
+<li><code>(define (f g) (g 2))</code>として<code>(f f)</code>を評価するとどうなるか</li>
+</ul>
+
+<p>lambdaやletと関係あるのかなあ</p>
+
+<div><pre><code class="language-none">  (f f)
+= (f 2)
+= (2 2)</code></pre></div>
+
+<p>てなるよねえ</p>
+
+<div><pre><code class="language-none">&gt; (f f)
+application: not a procedure;</code></pre></div>
+
+<p>激しく同意です</p>
+
+<p><code>(f (lambda (z) (* z (+ z 1))))</code>とかの例を見せたかっただけ？</p>
+
+
+
+
+</body>
+
+</html>
