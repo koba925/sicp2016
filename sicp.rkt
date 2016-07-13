@@ -1044,7 +1044,7 @@
 
 (define (cont-frac n d k)
   (define (C i)
-    (printf "~a ~a ~a~n" i (n i) (d i))
+    ; (printf "~a ~a ~a~n" i (n i) (d i))
     (if (= i k)
         (/ (n i) (d i))
         (/ (n i) (+ (d i) (C (+ i 1))))))
@@ -1088,11 +1088,33 @@
 
 ; Exercise 1.38.
 
-(define e (+ 2 (cont-frac (lambda (i) 1.0)
-                          (lambda (i)
-                            (if (= (remainder i 3) 2)
-                                (* 2 (/ (+ i 1) 3))
-                                1))
-                          10)))
+;(define e (+ 2 (cont-frac (lambda (i) 1.0)
+;                          (lambda (i)
+;                            (if (= (remainder i 3) 2)
+;                                (* 2 (/ (+ i 1) 3))
+;                                1))
+;                          10)))
+;
+;e
 
-e
+; Exercise 1.39.
+
+(define (tan-cf x k)
+  (cont-frac (lambda (i) (if (= i 1) x (- (* x x))))
+             (lambda (i) (- (* 2 i) 1))
+             k))
+
+(define qp (/ pi 4))
+(define qps (* qp qp))
+
+(/ qp 1)
+(tan-cf (/ pi 4) 1)
+
+(/ qp (- 1 (/ qps 3)))
+(tan-cf (/ pi 4) 2)
+
+(/ qp (- 1 (/ qps (- 3 (/ qps 5)))))
+(tan-cf (/ pi 4) 3)
+
+(tan-cf (/ pi 4) 30)
+(tan (/ pi 4))
