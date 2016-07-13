@@ -63,8 +63,8 @@
 
 ; 1.1.7 Example: Sqare Roots by Newton's Method
 
-(define (sqrt x)
-  (sqrt-iter 1.0 x))
+;(define (sqrt x)
+;  (sqrt-iter 1.0 x))
 
 (define (sqrt-iter guess x)
   (if (good-enough? guess x)
@@ -82,7 +82,7 @@
 ;  (printf "~a ~a ~a ~n" guess (/ x guess) (average guess (/ x guess)))
   (< (abs (- (square guess) x)) 0.001))
 
-(check-= (square (sqrt 2.0)) 2.0 0.001)
+; (check-= (square (sqrt 2.0)) 2.0 0.001)
 
 ; Exercise 1.6.
 
@@ -1038,4 +1038,49 @@
 
 ; Exercise 1.36.
 
-(fixed-point (lambda (x) (/ (log 1000) (log x))) 2.0)
+; (fixed-point (lambda (x) (/ (log 1000) (log x))) 2.0)
+
+; Exercise 1.37.
+
+(define (cont-frac n d k)
+  (define (C i)
+    (if (= i k)
+        (/ (n i) (d i))
+        (/ (n i) (+ (d i) (C (+ i 1))))))
+  (C 1))
+
+;(cont-frac (lambda (i) 1.0) (lambda (i) 1.0) 1)
+;(cont-frac (lambda (i) 1.0) (lambda (i) 1.0) 10)
+;(cont-frac (lambda (i) 1.0) (lambda (i) 1.0) 100)
+;(cont-frac (lambda (i) 1.0) (lambda (i) 1.0) 1000)
+
+(define (get-n-digits a n)
+  (let ((m (expt 10 n)))
+    (/ (floor (* a m)) m)))
+
+(define (count-for-accuracy ans f n)
+  (let ((ans-n-digits (get-n-digits ans n)))
+    (define (iter k)
+      (if (= ans-n-digits
+             (get-n-digits (f k) n))
+          k
+          (iter (+ 1 k))))
+    (iter 1)))
+
+;(count-for-accuracy (/ 1 (/ (+ 1 (sqrt 5)) 2))
+;                    (lambda (k) (cont-frac (lambda (i) 1.0)
+;                                           (lambda (i) 1.0)
+;                                           k))
+;                    10)
+
+(define (cont-frac-i n d k)
+  (define (iter i ans)
+    (if (= i 0)
+        ans
+        (iter (- i 1) (/ (n k) (+ (d k) ans)))))
+  (iter (- k 1) (/ (n k) (d k))))
+
+(cont-frac-i (lambda (i) 1.0) (lambda (i) 1.0) 1)
+(cont-frac-i (lambda (i) 1.0) (lambda (i) 1.0) 10)
+(cont-frac-i (lambda (i) 1.0) (lambda (i) 1.0) 100)
+(cont-frac-i (lambda (i) 1.0) (lambda (i) 1.0) 1000)
