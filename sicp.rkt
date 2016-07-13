@@ -1044,6 +1044,7 @@
 
 (define (cont-frac n d k)
   (define (C i)
+    (printf "~a ~a ~a~n" i (n i) (d i))
     (if (= i k)
         (/ (n i) (d i))
         (/ (n i) (+ (d i) (C (+ i 1))))))
@@ -1080,7 +1081,18 @@
         (iter (- i 1) (/ (n k) (+ (d k) ans)))))
   (iter (- k 1) (/ (n k) (d k))))
 
-(cont-frac-i (lambda (i) 1.0) (lambda (i) 1.0) 1)
-(cont-frac-i (lambda (i) 1.0) (lambda (i) 1.0) 10)
-(cont-frac-i (lambda (i) 1.0) (lambda (i) 1.0) 100)
-(cont-frac-i (lambda (i) 1.0) (lambda (i) 1.0) 1000)
+;(cont-frac-i (lambda (i) 1.0) (lambda (i) 1.0) 1)
+;(cont-frac-i (lambda (i) 1.0) (lambda (i) 1.0) 10)
+;(cont-frac-i (lambda (i) 1.0) (lambda (i) 1.0) 100)
+;(cont-frac-i (lambda (i) 1.0) (lambda (i) 1.0) 1000)
+
+; Exercise 1.38.
+
+(define e (+ 2 (cont-frac (lambda (i) 1.0)
+                          (lambda (i)
+                            (if (= (remainder i 3) 2)
+                                (* 2 (/ (+ i 1) 3))
+                                1))
+                          10)))
+
+e
