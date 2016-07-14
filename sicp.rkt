@@ -1136,3 +1136,26 @@
   (fixed-point (average-damp (lambda (y) (/ x (square y)))) 1.0))
 
 ; (cube-root 3)
+
+; Newton's method
+
+(define dx 0.00001)
+(define (deriv g)
+  (lambda (x) (/ (- (g (+ x dx)) (g x)) dx)))
+
+(define (newton-transform g)
+  (lambda (x) (- x(/ (g x) ((deriv g) x)))))
+(define (newtons-method g guess)
+  (fixed-point (newton-transform g) guess))
+
+(define (sqrt-5 x)
+  (newtons-method (lambda (y) (- (square y) x)) 1.0))
+
+; (sqrt-5 2.0)
+
+(define (cube-root-n x)
+  (newtons-method (lambda (y) (- (cube y) x)) 1.0))
+
+; (cube-root-n 3)
+
+
