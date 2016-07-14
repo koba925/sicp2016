@@ -1104,17 +1104,35 @@
              (lambda (i) (- (* 2 i) 1))
              k))
 
-(define qp (/ pi 4))
-(define qps (* qp qp))
+;(define qp (/ pi 4))
+;(define qps (* qp qp))
+;
+;(/ qp 1)
+;(tan-cf (/ pi 4) 1)
+;
+;(/ qp (- 1 (/ qps 3)))
+;(tan-cf (/ pi 4) 2)
+;
+;(/ qp (- 1 (/ qps (- 3 (/ qps 5)))))
+;(tan-cf (/ pi 4) 3)
+;
+;(tan-cf (/ pi 4) 30)
+;(tan (/ pi 4))
 
-(/ qp 1)
-(tan-cf (/ pi 4) 1)
+; 1.3.4 Procedures as Returned Values
 
-(/ qp (- 1 (/ qps 3)))
-(tan-cf (/ pi 4) 2)
+(define (average-damp f)
+  (lambda (x) (average x (f x))))
 
-(/ qp (- 1 (/ qps (- 3 (/ qps 5)))))
-(tan-cf (/ pi 4) 3)
+; ((average-damp square) 10)
 
-(tan-cf (/ pi 4) 30)
-(tan (/ pi 4))
+(define (sqrt-4 x)
+  (fixed-point (average-damp (lambda (y) (/ x y)))
+               1.0))
+
+; (sqrt-4 2.0)
+
+(define (cube-root x)
+  (fixed-point (average-damp (lambda (y) (/ x (square y)))) 1.0))
+
+; (cube-root 3)

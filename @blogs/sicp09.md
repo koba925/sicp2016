@@ -392,3 +392,64 @@ Diの表し方くらいですかね
              (lambda (i) (- (* 2 i) 1))
              k))
 ```
+
+# SICPを読む(10)
+
+## 1.3.4 Procedures as Returned Values
+
+* 引数として手続きを渡して渡せるようにすると表現力がとても上がることがわかった
+* 値として手続きを返せるようになるとさらに表現力が上がる
+* average dampingを手続きとして書いてみる
+
+```
+(define (average-damp f)
+  (lambda (x) (average x (f x))))
+```
+
+* average-dumpの値はlambdaで作られた手続きとなる
+* average-dumpを使うとsqrtはこうなる
+
+```
+(define (sqrt-4 x)
+  (fixed-point (average-damp (lambda (y) (/ x y))) 1.0))
+```
+
+前に書いたのはこう
+
+```
+(define (sqrt-3 x)
+  (fixed-point (lambda (y) (average y (/ x y))) 1.0))
+```
+
+yとy/xの平均を取ってますよ、という書き方から
+y/xをaverage-dampしてますよ、という書き方になりました
+
+* これは、fixed-point searchとaverage dampingとy→x/yという３つのアイデアを明示している
+* 1.1.7でやったsqrtと比較してみるとわかりやすい
+
+これ
+
+```
+(define (sqrt x)
+  (sqrt-iter 1.0 x))
+
+(define (sqrt-iter guess x)
+  (if (good-enough? guess x)
+      guess
+      (sqrt-iter (improve guess x) x)))
+
+(define (improve guess x)
+  (average guess (/ x guess)))
+
+(define (average x y)
+  (/ (+ x y) 2))
+
+(define (good-enough? guess x)
+  (< (abs (- (square guess) x)) 0.001))
+```
+
+* これらは同じプロセスだけれども、考え方がよりはっきりするようになった
+* プロセスを手続きとして定式化する方法はたいていいくつもある
+* わかりやすい定式化を選びなさい
+* 他で再利用しやすい、独立した要素を切り出しなさい
+
