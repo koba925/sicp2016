@@ -1158,4 +1158,22 @@
 
 ; (cube-root-n 3)
 
+; Abstractions and first-class procedures
+
+(define (fixed-point-of-transform g transform guess)
+  (fixed-point (transform g) guess))
+
+(define (sqrt-6 x)
+  (fixed-point-of-transform (lambda (y) (/ x y))
+                            average-damp
+                            1.0))
+
+;(sqrt-6 2.0)
+
+(define (sqrt-7 x)
+  (fixed-point-of-transform (lambda (y) (- (square y) x))
+                            newton-transform
+                            1.0))
+
+;(sqrt-7 2.0)
 
