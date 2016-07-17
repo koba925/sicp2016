@@ -1177,3 +1177,11 @@
 
 ;(sqrt-7 2.0)
 
+; Exercise 1.40.
+
+(define (cubic a b c)
+  (lambda (x) (+ (* x x x) (* a x x) (* b x) c)))
+
+;((cubic 2 3 4) 2)
+
+(newtons-method (cubic -1 -1 -2) 1.0)
