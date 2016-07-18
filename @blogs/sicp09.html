@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<title>sicp09</title>
+
+
+
+</head>
+
+<body>
+
+<h1 id="toc_0">SICPを読む(9)</h1>
+
+<h2 id="toc_1">1.3.3 Procedures as General Methods</h2>
+
+<ul>
+<li>特定の数から独立した数値計算の抽象化と、特定の関数から独立した汎用的手法の抽象化を見てきた</li>
+<li>さらにふたつの例を見ていく</li>
+</ul>
+
+<p>まだ数学っぽい話が続きますよ</p>
+
+<h3 id="toc_2">Finding roots of equations by the half-interval method</h3>
+
+<ul>
+<li>二分法はf(x)=0となるxを見つけるための強力な手法</li>
+</ul>
+
+<p>このあと二分法を言葉で説明してますがコードのまんまですね<br>
+コードが文章のまんまなのか</p>
+
+<div><pre><code class="language-none">(define (search f neg-point pos-point)
+  (let ((midpoint (/ (+ neg-point pos-point) 2)))
+    (if (close-enough? neg-point pos-point)
+        midpoint
+        (let ((test-value (f midpoint)))
+          (cond ((positive? test-value)
+                 (search f neg-point midpoint))
+                ((negative? test-value)
+                 (search f midpoint pos-point))
+                (else midpoint))))))</code></pre></div>
+
+<p>プログラミングが必修になるなら、<br>
+数学の教科書に二分法はこうです、ってコードで書くようにしてみたらどうでしょうかね<br>
+一石二鳥じゃないでしょうか（半分くらい本気</p>
+
+<h3 id="toc_3">Finding fixed points of functions</h3>
+
+<ul>
+<li>f(x)=xであるときxをfの不動点という</li>
+<li>fによっては、fを繰り返し適用することにより不動点を求めることができる</li>
+<li>つまりf(x)、f(f(x))、f(f(f(x)))・・・と値があまり変わらなくなるまで続ける</li>
+</ul>
+
+<p>不動点といえば例の不動点オペレータを思い出します<br>
+やはりなにか重要なものなんですかね<br>
+ここではxは数って言ってますけどね</p>
+
+<div><pre><code class="language-none">(define tolerance 0.00001)
+(define (fixed-point f first-guess)
+  (define (close-enough? v1 v2)
+    (&lt; (abs (- v1 v2)) tolerance))
+  (define (try guess)
+    (let ((next (f guess)))
+      (if (close-enough? guess next)
+          next
+          (try next))))
+  (try first-guess))</code></pre></div>
+
+<ul>
+<li>求める精度に達するまで繰り返し予測値を改善する</li>
+<li>そのへんはニュートン法で平方根を求めたやり方と似ている</li>
+<li>ところが平方根を求めるためにy^2=xを変形してy→x/yとすると、これは収束しない</li>
+</ul>
+
+<p>guessを毎回表示させてみるとこうなります</p>
+
+<div><pre><code class="language-none">&gt; (fixed-point (lambda (y) (/ 2 y)) 1.0)
+1.0
+2.0
+1.0
+2.0
+ :
+ :</code></pre></div>
+
+<ul>
+<li>これを避けるための一つの方法は、元の推測値と、改善された値の推測値の平均をとってやること</li>
+<li>この例で言えばy→(1/2)(y+x/y)としてやること</li>
+<li>y=(1/2)(y+x/y)はy=x/yを変形したものであることに注意</li>
+<li>このやり方をaverage dampingと言い、不動点を探すのに役立つ</li>
+</ul>
+
+<div><pre><code class="language-none">&gt; (fixed-point (lambda (y) (average y (/ 2 y))) 1.0)
+1.0
+1.5
+1.4166666666666665
+1.4142156862745097
+1.4142135623746899</code></pre></div>
+
+<p>おお、精度の高まり方がすごい</p>
+
+<ul>
+<li>こうやって変形すると、実はニュートン法で平方根を求めるのと同じことになっている</li>
+</ul>
+
+<p>ほんとだ<br>
+improveと同じ式<br>
+不動点＋average dampingには微分なんか出てきてないけどどこで同じになったんだろう？<br>
+たまたま？</p>
+
+<p>ニュートン法では1回ごとに合ってる桁数が倍になるとか<br>
+上の例だと1桁→1桁→3桁→6桁→12桁<br>
+確かにそんな感じ<br>
+超優秀</p>
+
+<p>試しに他の式でやってみると</p>
+
+<div><pre><code class="language-none">&gt; (fixed-point (lambda (y) (+ (sin y) (cos y))) 1.0)
+1.0
+1.3817732906760363
+1.1700876970971783
+1.3108557450190208
+1.2234283819604843
+1.2806961256602427
+1.2442634587575785
+1.2679211886945934
+1.2527485860569305
+1.2625605329565772
+1.256248323727693
+1.2603230004268888
+1.2576984377593448
+1.2593913555020237
+1.2583003677191482
+1.2590038597400248
+1.2585504047403622
+1.2588427629092844
+1.2586542990963894
+1.2587758014705526
+1.2586974741689445
+1.2587479705055356
+1.2587154172236283
+1.258736403592101
+1.2587228743052672
+1.2587315962971173</code></pre></div>
+
+<p>ちっとも優秀じゃなかった</p>
+
+<h3 id="toc_4">Exercise 1.35.</h3>
+
+<ul>
+<li>φはx→1+1/xの不動点であることを示せ</li>
+</ul>
+
+<p>φ^2=φ+1です<br>
+x→1+1/xの両辺にxを掛ければx^2=x+1</p>
+
+<ul>
+<li>そのことを利用して、φを<code>fixed-point</code>で求めよ</li>
+</ul>
+
+<div><pre><code class="language-none">&gt; (define φ (fixed-point (lambda (x) (+ 1 (/ 1 x))) 1.0))
+&gt; φ
+1.6180327868852458
+&gt; (+ 1 (/ 1 φ))
+1.618034447821682</code></pre></div>
+
+<p>試しにφ使ってみましたがすんなり使えました<br>
+Racketだとlambdaの代わりにλでもいけます</p>
+
+<div><pre><code class="language-none">&gt; ((λ (x) (* x x)) 3)
+9</code></pre></div>
+
+<h3 id="toc_5">Exercise 1.36.</h3>
+
+<ul>
+<li>途中経過を表示するようにせよ</li>
+</ul>
+
+<p><code>(define (try guess) (display guess) (newline) ...)</code>とするだけ</p>
+
+<ul>
+<li>x^x=1000となるようなxを求めよ</li>
+</ul>
+
+<p>両辺の対数をとれば・・・</p>
+
+<ul>
+<li>つまりx=log(1000)/log(x)となるようなxを求めよ</li>
+</ul>
+
+<div><pre><code class="language-none">&gt; (fixed-point (lambda (x) (/ (log 1000) (log x))) 2.0)
+2.0
+9.965784284662087
+3.004472209841214
+6.279195757507157
+3.759850702401539
+5.215843784925895
+4.182207192401397
+4.8277650983445906
+略
+4.555527808516254
+4.555540912917957
+4.555532270803653</code></pre></div>
+
+<p>確かめ</p>
+
+<div><pre><code class="language-none">&gt; (expt 4.555532270803653 4.555532270803653)
+999.9913579312362</code></pre></div>
+
+<p>（このexptはSICPで作ったやつじゃなくてRacketについてくるexptです）<br>
+大丈夫そうです</p>
+
+<h3 id="toc_6">Exercise 1.37.</h3>
+
+<ul>
+<li>無限連分数とは以下のような式</li>
+</ul>
+
+<div><pre><code class="language-none">            N1
+f = ------------------
+              N2
+    D1 + -------------
+                 N3
+         D2 + --------
+              D3 + ...</code></pre></div>
+
+<p>これは書くのめんどうだな・・・<br>
+こう書こうかな？</p>
+
+<div><pre><code class="language-none">f = N1/(D1+N2/(D2+N3/(D3+...)))</code></pre></div>
+
+<p>これはこれでちっとも連分数に見えない</p>
+
+<ul>
+<li>たとえばDiとNiが全部1なら1/φになる</li>
+</ul>
+
+<div><pre><code class="language-none">            1
+f = -----------------
+              1
+    1 + -------------
+                 1
+         1 + --------
+              1 + ...</code></pre></div>
+
+<p>これよくみるとfとおんなじ形が分母に出てきてて</p>
+
+<div><pre><code class="language-none">      1
+f = -----
+    1 + f</code></pre></div>
+
+<p>両辺に1+fを掛け算してやるとf^2+f=1からf=(-1+√5)/2 (f&gt;0だから)<br>
+一方1/φ=1/((1+√5)/2)=2/(1+√5)=(-1+√5)/2<br>
+よし</p>
+
+<ul>
+<li>Dk、Nkまでで止めれば近似値を求めることができる</li>
+<li>そういう関数を書け</li>
+</ul>
+
+<p>まずは再帰プロセスで書いてみよう<br>
+今まで再帰プロセスだと状態を表すような変数使ってこなかった気がするけど<br>
+これは第何項めかを変数にするしか思いつかないゾと</p>
+
+<div><pre><code class="language-none">(define (cont-frac n d k)
+  (define (C i)
+    (if (= i k)
+        (/ (n i) (d i))
+        (/ (n i) (+ (d i) (C (+ i 1))))))
+  (C 1))</code></pre></div>
+
+<p>こうしか書けませんでした<br>
+いいのかなこれで</p>
+
+<p>カウンタが入るだけで繰り返しプロセスに見えてしまうのは理解が浅いからか</p>
+
+<ul>
+<li>4桁の精度を出すにはkをいくつにすればいい？</li>
+</ul>
+
+<p>ちょっと見当をつけます</p>
+
+<div><pre><code class="language-none">&gt; (cont-frac (lambda (i) 1.0) (lambda (i) 1.0) 10)
+0.6179775280898876
+&gt; (cont-frac (lambda (i) 1.0) (lambda (i) 1.0) 100)
+0.6180339887498948
+&gt; (cont-frac (lambda (i) 1.0) (lambda (i) 1.0) 1000)
+0.6180339887498948</code></pre></div>
+
+<p>k=100ではもう十分なようですね<br>
+ていうか四捨五入すれば10でも足りてるくらいですね<br>
+&#39;accurate to 4 decimal places&#39;てのはどういう意味なんだろう<br>
+まあ数字が４つ一致するまで、としておきます</p>
+
+<p>念のため答えも確認</p>
+
+<div><pre><code class="language-none">&gt; (/ 1 (/ (+ 1 (sqrt 5)) 2))
+0.6180339887498948</code></pre></div>
+
+<p>おｋ</p>
+
+<p>ここから先はやはりCPUに働いてもらいましょう</p>
+
+<div><pre><code class="language-none">(define (get-n-digits a n)
+  (let ((m (expt 10 n)))
+    (/ (floor (* a m)) m)))
+
+(define (count-for-accuracy ans f n)
+  (let ((ans-n-digits (get-n-digits ans n)))
+    (define (iter k)
+      (if (= ans-n-digits
+             (get-n-digits (f k) n))
+          k
+          (iter (+ 1 k))))
+    (iter 1)))</code></pre></div>
+
+<p>なんか不要に一般化してる気もしますが<br>
+DRYはちょっと気にするけどYAGNIはあんまり気にしないんです！</p>
+
+<div><pre><code class="language-none">&gt; (count-for-accuracy (/ 1 (/ (+ 1 (sqrt 5)) 2))
+                      (lambda (k) (cont-frac (lambda (i) 1.0)
+                                             (lambda (i) 1.0)
+                                             k))
+                      4)
+11</code></pre></div>
+
+<p>がーん</p>
+
+<div><pre><code class="language-none">&gt; (cont-frac (lambda (i) 1.0) (lambda (i) 1.0) 11)
+0.6180555555555556</code></pre></div>
+
+<p>そうですねあと1回試しておけば終わってましたね<br>
+まさにYAGNIでした</p>
+
+<p>悔しいので10桁の精度を得るにはいくつまでやる必要があるか計算してみます</p>
+
+<div><pre><code class="language-none">&gt; (count-for-accuracy (/ 1 (/ (+ 1 (sqrt 5)) 2))
+                      (lambda (k) (cont-frac (lambda (i) 1.0)
+                                             (lambda (i) 1.0)
+                                             k))
+                      10)
+25</code></pre></div>
+
+<p>確かめ</p>
+
+<div><pre><code class="language-none">&gt; (cont-frac (lambda (i) 1.0) (lambda (i) 1.0) 24)
+0.6180339886704432
+&gt; (cont-frac (lambda (i) 1.0) (lambda (i) 1.0) 25)
+0.6180339887802426</code></pre></div>
+
+<p>はいOKです</p>
+
+<ul>
+<li>繰り返しプロセスで書け</li>
+</ul>
+
+<p>んーとこれはどうすればいいんだえーと<br>
+kから1に向かうようにすると楽かな</p>
+
+<div><pre><code class="language-none">(define (cont-frac-i n d k)
+  (define (iter i ans)
+    (if (= i 0)
+        ans
+        (iter (- i 1) (/ (n k) (+ (d k) ans)))))
+  (iter (- k 1) (/ (n k) (d k))))</code></pre></div>
+
+<p>そういえば変数名のつけかたに一貫性がない<br>
+技術的負債ってやつか！<br>
+無視</p>
+
+<h3 id="toc_7">Exercise 1.38.</h3>
+
+<ul>
+<li>オイラーによるとe-2はNi=1、Di=1,2,1,1,4,1,1,6,1,1,8・・・という連分数になる</li>
+<li>eの近似値を求めよ</li>
+</ul>
+
+<p>出たなオイラー先生<br>
+なんでそうなるのかはちっともわかりませんがコードにするのは別に問題ありません<br>
+Diの表し方くらいですかね</p>
+
+<div><pre><code class="language-none">(define e (+ 2 (cont-frac (lambda (i) 1.0)
+                          (lambda (i)
+                            (if (= (remainder i 3) 2)
+                                (* 2 (/ (+ i 1) 3))
+                                1))
+                          10)))</code></pre></div>
+
+<h3 id="toc_8">Exercise 1.39.</h3>
+
+<ul>
+<li>Lambertの式を使ってtan xを近似せよ</li>
+</ul>
+
+<div><pre><code class="language-none">(define (tan-cf x k)
+  (cont-frac (lambda (i) (if (= i 1) x (- (* x x))))
+             (lambda (i) (- (* 2 i) 1))
+             k))</code></pre></div>
+
+
+
+
+</body>
+
+</html>
