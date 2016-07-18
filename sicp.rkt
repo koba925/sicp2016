@@ -1191,26 +1191,26 @@
 ;(define (twice f) (lambda (x) (f (f x))))
 (define twice (lambda (f) (lambda (x) (f (f x)))))
 
-(((twice (twice twice)) inc) 5)
+;(((twice (twice twice)) inc) 5)
 ;        ^^^^^^^^^^^^^
 ;        twiceに引数が与えられているから
 ;        (lambda (f) (lambda (x) (f (f x))))のfを
 ;        twiceで置き換える
-(((twice (lambda (x) (twice (twice x)))) inc) 5)
+;(((twice (lambda (x) (twice (twice x)))) inc) 5)
 ; ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ; twiceに引数が与えられているから
 ; (lambda (f) (lambda (x) (f (f x))))のfを
 ; (lambda (x) (twice (twice x)))で置き換える
-(((lambda (x) ((lambda (x) (twice (twice x))) ((lambda (x) (twice (twice x))) x))) inc) 5)
-
-
-(((lambda (x) (twice (twice x))) ((lambda (x) (twice (twice x))) inc)) 5)
-
-(((lambda (x) (twice (twice x))) (twice (twice inc))) 5)
-(((lambda (x) (twice (twice x)))
-  (twice (lambda (x) (inc (inc x))))) 5)
-(((lambda (x) (twice (twice x)))
-  (lambda (x) ((lambda (x) (inc (inc x))) ((lambda (x) (inc (inc x))) x)))) 5)
-(((lambda (x) (twice (twice x)))
-  (lambda (x) ((lambda (x) (inc (inc x))) ((lambda (x) (inc (inc x))) x)))) 5)
+;(((lambda (x) ((lambda (x) (twice (twice x))) ((lambda (x) (twice (twice x))) x))) inc) 5)
+;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
+; (lambda (x) ... (twice x)))のxをincに置き換える
+;(((lambda (x) (twice (twice x))) ((lambda (x) (twice (twice x))) inc)) 5)
+;
+;(((lambda (x) (twice (twice x))) (twice (twice inc))) 5)
+;(((lambda (x) (twice (twice x)))
+;  (twice (lambda (x) (inc (inc x))))) 5)
+;(((lambda (x) (twice (twice x)))
+;  (lambda (x) ((lambda (x) (inc (inc x))) ((lambda (x) (inc (inc x))) x)))) 5)
+;(((lambda (x) (twice (twice x)))
+;  (lambda (x) ((lambda (x) (inc (inc x))) ((lambda (x) (inc (inc x))) x)))) 5)
 
