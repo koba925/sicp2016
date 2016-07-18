@@ -1214,3 +1214,9 @@
 ;(((lambda (x) (twice (twice x)))
 ;  (lambda (x) ((lambda (x) (inc (inc x))) ((lambda (x) (inc (inc x))) x)))) 5)
 
+; Exercise 1.42.
+
+(define (compose f g)
+  (lambda (x) (f (g x))))
+
+((compose square inc) 6)
