@@ -1219,4 +1219,19 @@
 (define (compose f g)
   (lambda (x) (f (g x))))
 
-((compose square inc) 6)
+; ((compose square inc) 6)
+
+; Exercise 1.43.
+
+;(define (repeated f n)
+; (lambda (x)
+;   (if (= n 0)
+;       x
+;       (f ((repeated f (- n 1)) x)))))
+
+(define (repeated f n)
+    (if (= n 1)
+        f
+        (compose f (repeated f (- n 1)))))
+
+((repeated square 2) 5)
