@@ -1234,4 +1234,24 @@
         f
         (compose f (repeated f (- n 1)))))
 
-((repeated square 2) 5)
+; ((repeated square 2) 5)
+
+; Exercise 1.44.
+
+(define (average3 a b c) (/ (+ a b c) 3))
+(define (smooth f)
+  (lambda (x) (average3 (f (- x dx)) (f x) (f (+ x dx)))))
+(define (nth-smooth f n)
+  ((repeated smooth n) f))
+
+;((smooth (lambda (x) x)) 3)
+;((nth-smooth (lambda (x) x) 3) 3)
+;
+;(square 2)
+;((smooth square) 2)
+;((nth-smooth square 2) 2)
+;((nth-smooth square 3) 2)
+;((nth-smooth square 4) 2)
+;((nth-smooth square 5) 2)
+
+

@@ -306,3 +306,21 @@ x→f(g(x))というのが合成だそうですからそのまま書くだけ
         f
         (compose f (repeated f (- n 1)))))
 ```
+
+### Exercise 1.44.
+
+* fをsmooth化する関数を書け
+* fをsmooth化した関数というのは、xでの値がf(x-dx)、f(x)、f(x+dx)の平均となる関数のこと
+* fをn回smooth化する関数も書け
+
+```
+(define (average3 a b c) (/ (+ a b c) 3))
+(define (smooth f)
+  (lambda (x) (average3 (f (- x dx)) (f x) (f (+ x dx)))))
+(define (nth-smooth f n)
+  ((repeated smooth n) f))
+```
+
+smoothになってるなあ、と実感できる例が思いつかない
+きっと合ってると信じて進む
+
