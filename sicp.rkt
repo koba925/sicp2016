@@ -1009,7 +1009,7 @@
   (define (close-enough? v1 v2)
     (< (abs (- v1 v2)) tolerance))
   (define (try guess)
-    (display guess) (newline)
+    ; (display guess) (newline)
     (let ((next (f guess)))
       (if (close-enough? guess next)
           next
@@ -1253,5 +1253,41 @@
 ;((nth-smooth square 3) 2)
 ;((nth-smooth square 4) 2)
 ;((nth-smooth square 5) 2)
+
+; Exercise 1.45.
+
+;(define (times k e n)
+;  (if (> e n)
+;      (- k 1)
+;      (times (+ k 1) (* e 2) n)))
+;
+;(let loop ((n 2))
+;  (printf "~a ~a~n" n (times 1 2 n))
+;  (when (< n 16) (loop (+ n 1))))
+
+;(define (times n)
+;  (if (< n 2)
+;      0
+;      (+ 1 (times (/ n 2)))))
+;
+;(let loop((n 2))
+;  (printf "~a ~a~n" n (times n))
+;  (when (< n 16) (loop (+ n 1))))
+
+(define (nth-root n x)
+  (define (times n)
+    (if (< n 2)
+        0
+        (+ 1 (times (/ n 2)))))
+  (fixed-point-of-transform (lambda (y) (/ x (expt y (- n 1))))
+                            (repeated average-damp (times n))
+                            1.0))
+
+;(let loop ((n 2))
+;  (printf "~a ~a~n" n (expt (nth-root n 2) n))
+;  (when (< n 16) (loop (+ n 1))))
+
+
+
 
 

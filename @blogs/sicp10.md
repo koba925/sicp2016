@@ -324,3 +324,38 @@ x→f(g(x))というのが合成だそうですからそのまま書くだけ
 smoothになってるなあ、と実感できる例が思いつかない
 きっと合ってると信じて進む
 
+### Exercise 1.45.
+
+* 平方根を求めるときは単純にaverage dampingを適用すれば収束した
+* でも4乗根では収束しない
+* average dampingを2回適用すれば収束する
+* ちょっと実験してから、n乗根を求める手続きを書け
+
+2乗根、3乗根では1回、
+4〜7乗根では2回、
+8〜15乗根では3回、
+16乗根では4回のaverage dampが必要でした
+n乗根では[log2(n)]回のaverage dampが必要な模様
+どういう理屈かな
+奇数乗根のときはaverage dampがいらないとか1回で済むとか予想してましたが
+ハズレでした
+
+ということでこう
+
+```
+(define (nth-root n x)
+  (define (times n)
+    (if (< n 2)
+        0
+        (+ 1 (times (/ n 2)))))
+  (fixed-point-of-transform (lambda (y) (/ x (expt y (- n 1))))
+                            (repeated average-damp (times n))
+                            1.0))
+```
+
+[log2(n)]を求めるところは対数使って書けば1行かもしれませんが
+log使っていいよとは書いてないし
+logはあってもlog2がないし（log 2で割ればいいけど）
+floor使うと丸め誤差が怖いし
+
+動いてはいる模様
