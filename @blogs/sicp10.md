@@ -27,7 +27,7 @@
 ```
 
 yとy/xの平均を取ってますよ、という書き方から
-y/xをaverage-dampしてますよ、という書き方になりました
+y→y/xをaverage-dampしてますよ、という書き方になりました
 
 * fixed-point search、average damping、y→x/yという３つのアイデアを明示している
 * 1.1.7でやったsqrtとは同じプロセスだが比較してみるとためになる
@@ -58,7 +58,7 @@ y/xをaverage-dampしてますよ、という書き方になりました
 * わかりやすい定式化を選びなさい
 * 他で再利用しやすい、独立した要素を切り出しなさい
 
-このへん大事なところっぽい
+このへん大事なところっぽいですね
 
 ### Newton's method
 
@@ -78,6 +78,7 @@ y/xをaverage-dampしてますよ、という書き方になりました
 
 `cube`をy=x^3を表す手続きとすると、y=x^3の微分は`(deriv cube)`であり
 x=3におけるyの微分は`((deriv cube) 3)`と表せます
+なんか感動します
 
 これを使うとニュートン法がプログラムできます
 
@@ -202,7 +203,7 @@ x^3-x^2-x-2=0のゼロ点を求めてみます
 * `(((twice (twice twice)) inc) 5)`の値を求めよ
 
 `(twice twice)`で4回だからそれを2回で8回適用かな
-
+とすると13になるはず
 
 ```
 > (((twice (twice twice)) inc) 5)
@@ -213,9 +214,10 @@ x^3-x^2-x-2=0のゼロ点を求めてみます
 16回適用してるってことだな
 (twiceを2回)×(twiceを2回)だからtwiceを4回してることになるのか
 そうか
+8回ならtwiceを3回で済むもんな
 
-確かめてみるかな
-キモは`(twice (twice twice))`の部分だからそこだけ取り出してやってみます
+確かめます
+キモは`(twice (twice twice))`の部分だからそこだけ取り出して
 
 `((twice (twice twice)) inc)`を
 `(twice (twice (twice inc)))`と書いても結果は同じだと思いますが
@@ -234,6 +236,7 @@ x^3-x^2-x-2=0のゼロ点を求めてみます
 ただの置き換えです
 `(define tw (lambda ...))`式の定義はこういう置換が単純にできるのが利点
 どこを置き換えるかは恣意的に決めてます
+順番は当分の間気にしなくてよかったはず
 
 ```
 = (tw (λ(x)(tw (tw x))))
@@ -258,7 +261,7 @@ x^3-x^2-x-2=0のゼロ点を求めてみます
 さっぱりしました
 incにtwを4回適用してますので2x2x2x2で16回適用ですね
 
-でも最後まで監訳しようと思うとまだ道は半ばです
+でも最後まで簡約しようと思うとまだ道は半ばです
 ていうかこの形に持ってくるだけでこんな手間とは
 
 ```
@@ -266,7 +269,7 @@ incにtwを4回適用してますので2x2x2x2で16回適用ですね
 = (tw (tw (tw (λ(x)(inc (inc x))))))
 ```
 
-文字数省略のため`(λ(x)(inc (inc x)))`を`LXI2X`と書くことにします
+文字数削減のため`(λ(x)(inc (inc x)))`を`LXI2X`と書くことにします
 以下同様
 
 ```
@@ -290,6 +293,7 @@ xにincが入るところとかで意外と混乱したりしました
 * 関数fとgを合成する手続きを書け
 
 x→f(g(x))というのが合成だそうですからそのまま書くだけ
+twiceと似たようなものです
 
 ```
 (define (compose f g) (lambda (x) (f (g x))))
@@ -306,6 +310,8 @@ x→f(g(x))というのが合成だそうですからそのまま書くだけ
         f
         (compose f (repeated f (- n 1)))))
 ```
+
+関数を関数のまま扱っている雰囲気が出ています
 
 ### Exercise 1.44.
 
@@ -331,6 +337,7 @@ smoothになってるなあ、と実感できる例が思いつかない
 * average dampingを2回適用すれば収束する
 * ちょっと実験してから、n乗根を求める手続きを書け
 
+試してみたところ
 2乗根、3乗根では1回、
 4〜7乗根では2回、
 8〜15乗根では3回、
@@ -359,3 +366,118 @@ logはあってもlog2がないし（log 2で割ればいいけど）
 floor使うと丸め誤差が怖いし
 
 動いてはいる模様
+
+### Exercise 1.46.
+
+* 近似値を求めるより一般的な関数`iterative-improve`を書け
+* `iterative-improve`は、十分に良い値かどうか判定する関数と、推測値を改善する関数を引数に取り、
+* 推測値を引数に取って十分によい値になるまで改善し続ける手続きを返す
+* `iterative-improve`を使って`sqrt`を書け
+* `iterative-improve`を使って`fixed-point`を書け
+
+関数を一般化するには、似たような関数を見比べて違うところを探すんでした
+ここでは`sqrt`と
+
+```
+(define (sqrt x)
+  (sqrt-iter 1.0 x))
+
+(define (sqrt-iter guess x)
+  (if (good-enough? guess x)
+      guess
+      (sqrt-iter (improve guess x) x)))
+
+(define (improve guess x)
+  (average guess (/ x guess)))
+
+(define (good-enough? guess x)
+  (< (abs (- (square guess) x)) 0.001))
+```
+
+`fixed-point`が似てるはず
+
+```
+(define (fixed-point f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2)) tolerance))
+  (define (try guess)
+    (let ((next (f guess)))
+      (if (close-enough? guess next)
+          next
+          (try next))))
+  (try first-guess))
+```
+
+ぱっと見そこまでは似てないですがよく見るとやっぱり構造は同じ
+できあがりを想定しつつ書き方を揃えてみます
+
+```
+(define (sqrt-8 x)
+  (define (good-enough? guess)
+    (< (abs (- (square guess) x)) 0.001))
+  (define (improve guess)
+    (average guess (/ x guess)))
+  (define (iter guess)
+    (if (good-enough? guess)
+        guess
+        (iter (improve guess))))
+  (iter 1.0))
+
+(define (fixed-point-2 improve first-guess)
+  (define (good-enough? guess)
+    (< (abs (- guess (improve guess))) tolerance))
+  (define (iter guess)
+    (if (good-enough? guess)
+        (improve guess)
+        (iter (improve guess))))
+  (iter first-guess))
+```
+
+`good-enough?`と`improve`を引数にとるようにするとこうですかね
+
+```
+(define (iterative-improve good-enough? improve)
+  (define (iter guess)
+    (if (good-enough? guess)
+        (improve guess)
+        (iter (improve guess))))
+  (lambda (guess) (iter guess)))
+```
+
+`(sqrt x)`の`x`はどこに行ってしまったのかという気もしますが
+よく見ると`good-enough?`と`improve`の中に隠れています
+こうなりました
+
+```
+(define (sqrt-9 x)
+  ((iterative-improve
+    (lambda (guess) (< (abs (- (square guess) x)) 0.001))
+    (lambda (guess) (/ (+ guess (/ x guess)) 2)))
+   1.0))
+```
+
+`fixed-point`はこうなりました
+
+```
+(define (fixed-point-3 f first-guess)
+    ((iterative-improve
+      (lambda (guess) (< (abs (- (f guess) guess)) tolerance))
+      (lambda (guess) (f guess)))
+     first-guess))
+```
+
+ついでにこれで`sqrt`を書くとこう
+当然ながら`fixed-point`とまったく同じに書けます
+
+```
+(define (sqrt-10 x)
+  (fixed-point-3 (average-damp (lambda (y) (/ x y))) 1.0))
+```
+
+`good-enough?`の中で`(imporve guess)`を計算してて
+`good-enough?`から戻った後も`(imporve guess)`を計算してることになるので
+ちょっともったいないんですけど
+もったいなくない書き方はちょっと思いつきませんでした
+汎用化のための税金みたいなものなんでしょうか
+うまく書けば解決するんでしょうか
+

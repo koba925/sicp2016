@@ -1287,7 +1287,51 @@
 ;  (printf "~a ~a~n" n (expt (nth-root n 2) n))
 ;  (when (< n 16) (loop (+ n 1))))
 
+; Exercise 1.46.
 
 
+(define (sqrt-8 x)
+  (define (good-enough? guess)
+    (< (abs (- (square guess) x)) 0.001))
+  (define (improve guess)
+    (average guess (/ x guess)))
+  (define (iter guess)
+    (if (good-enough? guess)
+        guess
+        (iter (improve guess))))
+  (iter 1.0))
 
+(define (fixed-point-2 improve first-guess)
+  (define (good-enough? guess)
+    (< (abs (- guess (improve guess))) tolerance))
+  (define (iter guess)
+    (if (good-enough? guess)
+        (improve guess)
+        (iter (improve guess))))
+  (iter first-guess))
 
+(define (iterative-improve good-enough? improve)
+  (define (iter guess)
+    (if (good-enough? guess)
+        (improve guess)
+        (iter (improve guess))))
+  (lambda (guess) (iter guess)))
+
+(define (sqrt-9 x)
+  ((iterative-improve
+    (lambda (guess) (< (abs (- (square guess) x)) 0.001))
+    (lambda (guess) (/ (+ guess (/ x guess)) 2)))
+   1.0))
+
+(sqrt-9 2.0)
+
+(define (fixed-point-3 f first-guess)
+    ((iterative-improve
+      (lambda (guess) (< (abs (- (f guess) guess)) tolerance))
+      (lambda (guess) (f guess)))
+     first-guess))
+
+(define (sqrt-10 x)
+  (fixed-point-3 (average-damp (lambda (y) (/ x y))) 1.0))
+
+(sqrt-10 2.0)
