@@ -1357,9 +1357,15 @@
      (* (numer y) (denom x))))
 
 ;(define (make-rat n d) (cons n d))
+;(define (make-rat n d)
+;  (let ((g (gcd n d)))
+;    (cons (/ n g) (/ d g))))
 (define (make-rat n d)
-  (let ((g (gcd n d)))
-    (cons (/ n g) (/ d g))))
+  (let ((g (gcd (abs n) (abs d))))
+    (if (< d 0)
+        (cons (/ (- n) g) (/ (- d) g))
+        (cons (/ n g) (/ d g)))))
+
 (define (numer x) (car x))
 (define (denom x) (cdr x))
 (define (print-rat x)
@@ -1370,9 +1376,20 @@
 
 (define one-half (make-rat 1 2))
 ;(print-rat one-half)
+(check-equal? one-half (cons 1 2))
 (define one-third (make-rat 1 3))
 ;(print-rat (add-rat one-half one-third))
+(check-equal? (add-rat one-half one-third) '(5 . 6))
 ;(print-rat (mul-rat one-half one-third))
+(check-equal? (mul-rat one-half one-third) '(1 . 6))
 ;(print-rat (add-rat one-third one-third))
+(check-equal? (add-rat one-third one-third) '(2 . 3))
 
+; Exercise 2.1.
+
+
+(check-equal? (make-rat 3 5) '(3 . 5))
+(check-equal? (make-rat -3 5) '(-3 . 5))
+(check-equal? (make-rat 3 -5) '(-3 . 5))
+(check-equal? (make-rat -3 -5) '(3 . 5))
 
