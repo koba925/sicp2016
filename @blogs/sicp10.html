@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<title>sicp10</title>
+
+
+
+</head>
+
+<body>
+
+<h1 id="toc_0">SICPを読む(10)</h1>
+
+<h2 id="toc_1">1.3.4 Procedures as Returned Values</h2>
+
+<ul>
+<li>引数として手続きを渡して渡せるようにすると表現力がとても上がることがわかった</li>
+<li>値として手続きを返せるようになるとさらに表現力が上がる</li>
+<li>average dampingを手続きとして書いてみる</li>
+</ul>
+
+<div><pre><code class="language-none">(define (average-damp f)
+  (lambda (x) (average x (f x))))</code></pre></div>
+
+<ul>
+<li>average-dampの値はlambdaで作られた手続きとなる</li>
+<li>average-dampを使うとsqrtはこうなる</li>
+</ul>
+
+<div><pre><code class="language-none">(define (sqrt-4 x)
+  (fixed-point (average-damp (lambda (y) (/ x y))) 1.0))</code></pre></div>
+
+<p>前に書いたのはこう</p>
+
+<div><pre><code class="language-none">(define (sqrt-3 x)
+  (fixed-point (lambda (y) (average y (/ x y))) 1.0))</code></pre></div>
+
+<p>yとy/xの平均を取ってますよ、という書き方から<br>
+y→y/xをaverage-dampしてますよ、という書き方になりました</p>
+
+<ul>
+<li>fixed-point search、average damping、y→x/yという３つのアイデアを明示している</li>
+<li>1.1.7でやったsqrtとは同じプロセスだが比較してみるとためになる</li>
+</ul>
+
+<p>これ</p>
+
+<div><pre><code class="language-none">(define (sqrt x)
+  (sqrt-iter 1.0 x))
+
+(define (sqrt-iter guess x)
+  (if (good-enough? guess x)
+      guess
+      (sqrt-iter (improve guess x) x)))
+
+(define (improve guess x)
+  (average guess (/ x guess)))
+
+(define (average x y)
+  (/ (+ x y) 2))
+
+(define (good-enough? guess x)
+  (&lt; (abs (- (square guess) x)) 0.001))</code></pre></div>
+
+<ul>
+<li>考え方がより明確になった</li>
+<li>プロセスを手続きとして定式化する方法はたいていいくつもある</li>
+<li>わかりやすい定式化を選びなさい</li>
+<li>他で再利用しやすい、独立した要素を切り出しなさい</li>
+</ul>
+
+<p>このへん大事なところっぽいですね</p>
+
+<h3 id="toc_2">Newton&#39;s method</h3>
+
+<ul>
+<li>ニュートン法の一般形は以下のとおり
+
+<ul>
+<li>x→g(x)が微分可能であれば、g(x)=0の解はx→f(x)の不動点である</li>
+<li>ここでf(x)=x-g(x)/Dg(x)</li>
+</ul></li>
+<li>これを手続きとして表すには、まず微分を手続きにしなければならない</li>
+<li>微分とはある関数を他の関数に変換する手続きである</li>
+<li>dxを小さい数とするとg(x)の微分はDg(x)=(g(x+dx)-g(x))/dxと書ける</li>
+</ul>
+
+<p>これはそのままプログラムできます</p>
+
+<div><pre><code class="language-none">(define dx 0.00001)
+(define (deriv g) (lambda (x) (/ (- (g (+ x dx)) (g x)) dx)))</code></pre></div>
+
+<p><code>cube</code>をy=x^3を表す手続きとすると、y=x^3の微分は<code>(deriv cube)</code>であり<br>
+x=3におけるyの微分は<code>((deriv cube) 3)</code>と表せます<br>
+なんか感動します</p>
+
+<p>これを使うとニュートン法がプログラムできます</p>
+
+<div><pre><code class="language-none">(define (newton-transform g)
+  (lambda (x) (- x (/ (g x) ((deriv g) x)))))
+(define (newtons-method g guess)
+  (fixed-point (newton-transform g) guess))</code></pre></div>
+
+<p>平方根はこうやって求められます</p>
+
+<div><pre><code class="language-none">(define (sqrt-5 x)
+  (newtons-method (lambda (y) (- (square y) x)) 1.0))</code></pre></div>
+
+<p>さらっと見るだけだとなんとなく混乱します<br>
+上に書いたニュートン法の説明はxを求めてますが、この版のsqrtでは<br>
+xの平方根を求める、つまりy^2-x=0を解くためにg(y)=y^2-xとおく、<br>
+というところからスタートしてるのでした</p>
+
+<p><code>square</code>を<code>cube</code>に変えるだけで立方根も求められます<br>
+自分で式を変形したりする必要がなくなりました</p>
+
+<h3 id="toc_3">Abstractions and first-class procedures</h3>
+
+<ul>
+<li>平方根を求めるのに、不動点探索を使う方法とニュートン法を使う方法を試した</li>
+<li>ニュートン法は実は不動点探索としても表現できる</li>
+<li>どちらも、ある関数から始めて、関数を変形してから不動点を求めた</li>
+<li>これもまた手続きとして一般化できる</li>
+</ul>
+
+<div><pre><code class="language-none">(define (fixed-point-of-transform g transform guess)
+  (fixed-point (transform g) guess))</code></pre></div>
+
+<p>この手続を使うと不動点方式はこう</p>
+
+<div><pre><code class="language-none">(define (sqrt-6 x)
+  (fixed-point-of-transform (lambda (y) (/ x y))
+                            average-damp
+                            1.0))</code></pre></div>
+
+<p>ニュートン法はこう書ける</p>
+
+<div><pre><code class="language-none">(define (sqrt-7 x)
+  (fixed-point-of-transform (lambda (y) (- (square y) x))
+                            newton-transform
+                            1.0))</code></pre></div>
+
+<p>抽象化とは、同じ形の手続きを探してきて、異なる部分を引数にすることである<br>
+と言えそうな気がしてきました</p>
+
+<ul>
+<li>プログラムの裏に潜む抽象を見つけ、それを基礎として構築し、一般化してさらに強力な抽象を生み出す</li>
+</ul>
+
+<p>ここまででやってきたことですね</p>
+
+<ul>
+<li>いつもいつも限界まで抽象化しなければいけないわけではないが</li>
+<li>抽象された観点で思考し、新たな文脈にそれを適用できることは重要</li>
+</ul>
+
+<p>実践はなかなかうまくいきませんが</p>
+
+<ul>
+<li>こういった抽象を明示的にプログラミング要素として表したものが高階関数</li>
+<li>高階関数は他のプログラミング要素と同じように扱えるべき</li>
+<li>こういった、制限の少ないプログラミング要素を「ファーストクラス」と呼ぶ</li>
+<li>ファーストクラスであるというのはたとえばこういうこと
+
+<ul>
+<li>名前がつけられる</li>
+<li>引数として手続きに渡せる</li>
+<li>手続きの値として返すことができる</li>
+<li>データ構造に含めることができる</li>
+</ul></li>
+<li>Lispの手続きは完全なファーストクラス</li>
+<li>効率的な実装は難しいが、表現力の増加はとても大きい</li>
+</ul>
+
+<p>最後はお決まりの表現力自慢で第１章を締めました</p>
+
+<p>振り返ると、1.1.7で</p>
+
+<div><pre><code class="language-none">(define (sqrt x) (the y (and (&gt;= y 0) (= (square y) x))))</code></pre></div>
+
+<p>なんて書いてもダメだよーというところから始まったニュートン法の話ですが<br>
+なんとなく似た感じにも見えなくもないところまで来ました<br>
+手続き型と宣言型で考え方はぜんぜん違うんですが</p>
+
+<p>お見事、て感じです</p>
+
+<h3 id="toc_4">Exercise 1.40.</h3>
+
+<ul>
+<li>x^3+ax^2+bx+cを定義して、ニュートン法でゼロ点を近似せよ</li>
+</ul>
+
+<div><pre><code class="language-none">(define (cubic a b c)
+  (lambda (x) (+ (* x x x) (* a x x) (* b x) c)))</code></pre></div>
+
+<p>x^3-x^2-x-2=0のゼロ点を求めてみます<br>
+実際の値はx=2</p>
+
+<div><pre><code class="language-none">&gt; (newtons-method (cubic -1 -1 -2) 1.0)
+2.000000000000005</code></pre></div>
+
+<p>おｋ</p>
+
+<h3 id="toc_5">Exercise 1.41.</h3>
+
+<ul>
+<li>1引数の手続きを引数として受け取り、その手続を2回適用する手続きを返す手続きを書け</li>
+</ul>
+
+<div><pre><code class="language-none">(define (twice f) (lambda (x) (f (f x))))</code></pre></div>
+
+<p>(doubleは定義済みだったので名前を変えました)</p>
+
+<ul>
+<li><code>(((twice (twice twice)) inc) 5)</code>の値を求めよ</li>
+</ul>
+
+<p><code>(twice twice)</code>で4回だからそれを2回で8回適用かな<br>
+とすると13になるはず</p>
+
+<div><pre><code class="language-none">&gt; (((twice (twice twice)) inc) 5)
+21</code></pre></div>
+
+<p>あらそうなるの<br>
+16回適用してるってことだな<br>
+(twiceを2回)×(twiceを2回)だからtwiceを4回してることになるのか<br>
+そうか<br>
+8回ならtwiceを3回で済むもんな</p>
+
+<p>確かめます<br>
+キモは<code>(twice (twice twice))</code>の部分だからそこだけ取り出して</p>
+
+<p><code>((twice (twice twice)) inc)</code>を<br>
+<code>(twice (twice (twice inc)))</code>と書いても結果は同じだと思いますが<br>
+こうやって取り出せるということは<br>
+パーツに分けるという観点からして前者のほうがいい感じなんでしょうね</p>
+
+<p>置換しやすくしたいのと文字数節約のため<br>
+<code>(define tw (λ(f)(λ(x)(f(f x)))))</code>ってことでいきます</p>
+
+<div><pre><code class="language-none">  (tw (tw tw))
+= (tw ((λ(f)(λ(x)(f (f x)))) tw))</code></pre></div>
+
+<p>ただの置き換えです<br>
+<code>(define tw (lambda ...))</code>式の定義はこういう置換が単純にできるのが利点<br>
+どこを置き換えるかは恣意的に決めてます<br>
+順番は当分の間気にしなくてよかったはず</p>
+
+<div><pre><code class="language-none">= (tw (λ(x)(tw (tw x))))
+= ((λ(f)(λ(x)(f (f x)))) (λ(x)(tw (tw x))))
+= (λ(x)((λ(x)(tw (tw x))) ((λ(x)(tw (tw x))) x)))</code></pre></div>
+
+<p>気持ちとしてはこれを<code>(λ(x)(tw (tw (tw (tw x)))))</code>としてみたいんですが<br>
+そういうことができるというルールってあったかな<br>
+<code>((λ(x)(A x)) (λ(x)(B x))) = (λ(x)(A (B x)))</code>みたいな<br>
+ルールでもあればいいんでしょうけど<br>
+でもとりあえずここではこれ以上簡約しないことにします</p>
+
+<p>上の関数をincに適用したとすれば先へ進めます</p>
+
+<div><pre><code class="language-none">→ ((λ(x)(tw (tw x))) ((λ(x)(tw (tw x))) inc))
+= ((λ(x)(tw (tw x))) (tw (tw inc)))
+= (tw (tw (tw (tw inc))))</code></pre></div>
+
+<p>さっぱりしました<br>
+incにtwを4回適用してますので2x2x2x2で16回適用ですね</p>
+
+<p>でも最後まで簡約しようと思うとまだ道は半ばです<br>
+ていうかこの形に持ってくるだけでこんな手間とは</p>
+
+<div><pre><code class="language-none">= (tw (tw (tw ((λ(f)(λ(x)(f (f x)))) inc))))
+= (tw (tw (tw (λ(x)(inc (inc x))))))</code></pre></div>
+
+<p>文字数削減のため<code>(λ(x)(inc (inc x)))</code>を<code>LXI2X</code>と書くことにします<br>
+以下同様</p>
+
+<div><pre><code class="language-none">= (tw (tw (tw LXI2X)))
+= (tw (tw (λ(x)(LXI2X (LXI2X x)))))
+= (tw (tw LXI4X))
+= (tw (λ(x) (LXI4X (LXI4X x))))
+= (tw LXI8X)
+= (λ(x) (LXI8X (LXI8X x)))
+= LXI16X</code></pre></div>
+
+<p>incを16回繰り返す関数になったようです<br>
+意外と奥が深い？</p>
+
+<p>xには5とかが入って関数はfに渡される、っていう先入観があったので<br>
+xにincが入るところとかで意外と混乱したりしました</p>
+
+<h3 id="toc_6">Exercise 1.42.</h3>
+
+<ul>
+<li>関数fとgを合成する手続きを書け</li>
+</ul>
+
+<p>x→f(g(x))というのが合成だそうですからそのまま書くだけ<br>
+twiceと似たようなものです</p>
+
+<div><pre><code class="language-none">(define (compose f g) (lambda (x) (f (g x))))</code></pre></div>
+
+<h3 id="toc_7">Exercise 1.43.</h3>
+
+<ul>
+<li>関数fをn回適用する手続きを書け</li>
+<li>composeを使うと便利</li>
+</ul>
+
+<div><pre><code class="language-none">(define (repeated f n)
+    (if (= n 1)
+        f
+        (compose f (repeated f (- n 1)))))</code></pre></div>
+
+<p>関数を関数のまま扱っている雰囲気が出ています</p>
+
+<h3 id="toc_8">Exercise 1.44.</h3>
+
+<ul>
+<li>fをsmooth化する関数を書け</li>
+<li>fをsmooth化した関数というのは、xでの値がf(x-dx)、f(x)、f(x+dx)の平均となる関数のこと</li>
+<li>fをn回smooth化する関数も書け</li>
+</ul>
+
+<div><pre><code class="language-none">(define (average3 a b c) (/ (+ a b c) 3))
+(define (smooth f)
+  (lambda (x) (average3 (f (- x dx)) (f x) (f (+ x dx)))))
+(define (nth-smooth f n)
+  ((repeated smooth n) f))</code></pre></div>
+
+<p>smoothになってるなあ、と実感できる例が思いつかない<br>
+きっと合ってると信じて進む</p>
+
+<h3 id="toc_9">Exercise 1.45.</h3>
+
+<ul>
+<li>平方根を求めるときは単純にaverage dampingを適用すれば収束した</li>
+<li>でも4乗根では収束しない</li>
+<li>average dampingを2回適用すれば収束する</li>
+<li>ちょっと実験してから、n乗根を求める手続きを書け</li>
+</ul>
+
+<p>試してみたところ<br>
+2乗根、3乗根では1回、<br>
+4〜7乗根では2回、<br>
+8〜15乗根では3回、<br>
+16乗根では4回のaverage dampが必要でした<br>
+n乗根では[log2(n)]回のaverage dampが必要な模様<br>
+どういう理屈かな<br>
+奇数乗根のときはaverage dampがいらないとか1回で済むとか予想してましたが<br>
+ハズレでした</p>
+
+<p>ということでこう</p>
+
+<div><pre><code class="language-none">(define (nth-root n x)
+  (define (times n)
+    (if (&lt; n 2)
+        0
+        (+ 1 (times (/ n 2)))))
+  (fixed-point-of-transform (lambda (y) (/ x (expt y (- n 1))))
+                            (repeated average-damp (times n))
+                            1.0))</code></pre></div>
+
+<p>[log2(n)]を求めるところは対数使って書けば1行かもしれませんが<br>
+log使っていいよとは書いてないし<br>
+logはあってもlog2がないし（log 2で割ればいいけど）<br>
+floor使うと丸め誤差が怖いし</p>
+
+<p>動いてはいる模様</p>
+
+<h3 id="toc_10">Exercise 1.46.</h3>
+
+<ul>
+<li>近似値を求めるより一般的な関数<code>iterative-improve</code>を書け</li>
+<li><code>iterative-improve</code>は、十分に良い値かどうか判定する関数と、推測値を改善する関数を引数に取り、</li>
+<li>推測値を引数に取って十分によい値になるまで改善し続ける手続きを返す</li>
+<li><code>iterative-improve</code>を使って<code>sqrt</code>を書け</li>
+<li><code>iterative-improve</code>を使って<code>fixed-point</code>を書け</li>
+</ul>
+
+<p>関数を一般化するには、似たような関数を見比べて違うところを探すんでした<br>
+ここでは<code>sqrt</code>と</p>
+
+<div><pre><code class="language-none">(define (sqrt x)
+  (sqrt-iter 1.0 x))
+
+(define (sqrt-iter guess x)
+  (if (good-enough? guess x)
+      guess
+      (sqrt-iter (improve guess x) x)))
+
+(define (improve guess x)
+  (average guess (/ x guess)))
+
+(define (good-enough? guess x)
+  (&lt; (abs (- (square guess) x)) 0.001))</code></pre></div>
+
+<p><code>fixed-point</code>が似てるはず</p>
+
+<div><pre><code class="language-none">(define (fixed-point f first-guess)
+  (define (close-enough? v1 v2)
+    (&lt; (abs (- v1 v2)) tolerance))
+  (define (try guess)
+    (let ((next (f guess)))
+      (if (close-enough? guess next)
+          next
+          (try next))))
+  (try first-guess))</code></pre></div>
+
+<p>ぱっと見そこまでは似てないですがよく見るとやっぱり構造は同じ<br>
+できあがりを想定しつつ書き方を揃えてみます</p>
+
+<div><pre><code class="language-none">(define (sqrt-8 x)
+  (define (good-enough? guess)
+    (&lt; (abs (- (square guess) x)) 0.001))
+  (define (improve guess)
+    (average guess (/ x guess)))
+  (define (iter guess)
+    (if (good-enough? guess)
+        guess
+        (iter (improve guess))))
+  (iter 1.0))
+
+(define (fixed-point-2 improve first-guess)
+  (define (good-enough? guess)
+    (&lt; (abs (- guess (improve guess))) tolerance))
+  (define (iter guess)
+    (if (good-enough? guess)
+        (improve guess)
+        (iter (improve guess))))
+  (iter first-guess))</code></pre></div>
+
+<p><code>good-enough?</code>と<code>improve</code>を引数にとるようにするとこうですかね</p>
+
+<div><pre><code class="language-none">(define (iterative-improve good-enough? improve)
+  (define (iter guess)
+    (if (good-enough? guess)
+        (improve guess)
+        (iter (improve guess))))
+  (lambda (guess) (iter guess)))</code></pre></div>
+
+<p><code>(sqrt x)</code>の<code>x</code>はどこに行ってしまったのかという気もしますが<br>
+よく見ると<code>good-enough?</code>と<code>improve</code>の中に隠れています<br>
+こうなりました</p>
+
+<div><pre><code class="language-none">(define (sqrt-9 x)
+  ((iterative-improve
+    (lambda (guess) (&lt; (abs (- (square guess) x)) 0.001))
+    (lambda (guess) (/ (+ guess (/ x guess)) 2)))
+   1.0))</code></pre></div>
+
+<p><code>fixed-point</code>はこうなりました</p>
+
+<div><pre><code class="language-none">(define (fixed-point-3 f first-guess)
+    ((iterative-improve
+      (lambda (guess) (&lt; (abs (- (f guess) guess)) tolerance))
+      (lambda (guess) (f guess)))
+     first-guess))</code></pre></div>
+
+<p>ついでにこれで<code>sqrt</code>を書くとこう<br>
+当然ながら<code>fixed-point</code>とまったく同じに書けます</p>
+
+<div><pre><code class="language-none">(define (sqrt-10 x)
+  (fixed-point-3 (average-damp (lambda (y) (/ x y))) 1.0))</code></pre></div>
+
+<p><code>good-enough?</code>の中で<code>(imporve guess)</code>を計算してて<br>
+<code>good-enough?</code>から戻った後も<code>(imporve guess)</code>を計算してることになるので<br>
+ちょっともったいないんですけど<br>
+もったいなくない書き方はちょっと思いつきませんでした<br>
+汎用化のための税金みたいなものなんでしょうか<br>
+うまく書けば解決するんでしょうか</p>
+
+
+
+
+</body>
+
+</html>
