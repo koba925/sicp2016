@@ -1408,3 +1408,113 @@
 ;  (let ((g (gcd (car x) (cdr x))))
 ;    (/ (cdr x) g)))
 
+; Exercise 2.2.
+
+(define (make-segment sp ep) (cons sp ep))
+(define (start-segment s) (car s))
+(define (end-segment s) (cdr s))
+
+(define (make-point x y) (cons x y))
+(define (x-point p) (car p))
+(define (y-point p) (cdr p))
+
+(define (print-point p)
+  (newline)
+  (display "(")
+  (display (x-point p))
+  (display ",")
+  (display (y-point p))
+  (display ")"))
+
+(define (midpoint-segment s)
+  (make-point (average (x-point (start-segment s))
+                       (x-point (end-segment s)))
+              (average (y-point (start-segment s))
+                       (y-point (end-segment s)))))
+
+(define P1 (make-point 2 3))
+(define P2 (make-point 4 7))
+(define S1 (make-segment P1 P2))
+; (print-point (midpoint-segment S1))
+
+; Exercise 2.3.
+
+;(define (make-rectangle p1 p2) (cons p1 p2))
+;(define (make-rectangle P1 P2)
+;  (cons (make-point (min (x-point P1) (x-point P2))
+;                    (min (y-point P1) (y-point P2)))
+;        (make-point (max (x-point P1) (x-point P2))
+;                    (max (y-point P1) (y-point P2)))))
+;(define (make-rectangle x1 x2 y1 y2)
+;  (cons (make-point (min x1 x2) (min y1 y2))
+;        (make-point (max x1 x2) (max y1 y2))))
+
+(define (make-rectangle x1 x2 y1 y2)
+  (cons (cons (min x1 x2) (min y1 y2))
+        (cons (max x1 x2) (max y1 y2))))
+
+(define (p1-rectangle r) (car r))
+(define (p2-rectangle r) (cdr r))
+
+(define (perimeter-rectangle r)
+  (* 2 (+ (- (x-point (p2-rectangle r)) (x-point (p1-rectangle r)))
+          (- (y-point (p2-rectangle r)) (y-point (p1-rectangle r))))))
+(define (area-rectangle r)
+  (* (- (x-point (p2-rectangle r)) (x-point (p1-rectangle r)))
+     (- (y-point (p2-rectangle r)) (y-point (p1-rectangle r)))))
+
+;(define (perimeter-rectangle r)
+;  (* 2 (+ (abs (- (x-point (p1-rectangle r)) (x-point (p2-rectangle r))))
+;          (abs (- (y-point (p1-rectangle r)) (y-point (p2-rectangle r)))))))
+;(define (area-rectangle r)
+;  (* (abs (- (x-point (p1-rectangle r)) (x-point (p2-rectangle r))))
+;     (abs (- (y-point (p1-rectangle r)) (y-point (p2-rectangle r))))))
+
+;(define (x1-rectangle r)
+;  (min (x-point (car r)) (x-point (cdr r))))
+;(define (x2-rectangle r)
+;  (max (x-point (car r)) (x-point (cdr r))))
+;(define (y1-rectangle r)
+;  (min (y-point (car r)) (y-point (cdr r))))
+;(define (y2-rectangle r)
+;  (max (y-point (car r)) (y-point (cdr r))))
+
+;(define (x1-rectangle r) (x-point (car r)))
+;(define (x2-rectangle r) (x-point (cdr r)))
+;(define (y1-rectangle r) (y-point (car r)))
+;(define (y2-rectangle r) (y-point (cdr r)))
+
+(define (max a b) (if (> a b) a b))
+(define (min a b) (if (< a b) a b))
+
+;(define (perimeter-rectangle r)
+;  (* 2 (+ (- (x2-rectangle r) (x1-rectangle r))
+;          (- (y2-rectangle r) (y1-rectangle r)))))
+;
+;(define (area-rectangle r)
+;  (* (- (x2-rectangle r) (x1-rectangle r))
+;     (- (y2-rectangle r) (y1-rectangle r))))
+
+;(define R1
+;  (make-rectangle (make-point 2 3) (make-point 4 7)))
+(define R1 (make-rectangle 2 4 3 7))
+(perimeter-rectangle R1)
+(area-rectangle R1)
+
+;(define R2
+;  (make-rectangle (make-point 4 3) (make-point 2 7)))
+(define R2 (make-rectangle 4 2 3 7))
+(perimeter-rectangle R2)
+(area-rectangle R2)
+
+;(define R3
+;  (make-rectangle (make-point 2 7) (make-point 4 3)))
+(define R3 (make-rectangle 2 4 7 3))
+(perimeter-rectangle R3)
+(area-rectangle R3)
+
+;(define R4
+;  (make-rectangle (make-point 4 7) (make-point 2 3)))
+(define R4 (make-rectangle 4 2 7 3))
+(perimeter-rectangle R4)
+(area-rectangle R4)
