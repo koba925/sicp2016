@@ -1497,24 +1497,34 @@
 
 ;(define R1
 ;  (make-rectangle (make-point 2 3) (make-point 4 7)))
-(define R1 (make-rectangle 2 4 3 7))
-(perimeter-rectangle R1)
-(area-rectangle R1)
+;(define R1 (make-rectangle 2 4 3 7))
+;(perimeter-rectangle R1)
+;(area-rectangle R1)
 
 ;(define R2
 ;  (make-rectangle (make-point 4 3) (make-point 2 7)))
-(define R2 (make-rectangle 4 2 3 7))
-(perimeter-rectangle R2)
-(area-rectangle R2)
+;(define R2 (make-rectangle 4 2 3 7))
+;(perimeter-rectangle R2)
+;(area-rectangle R2)
 
 ;(define R3
 ;  (make-rectangle (make-point 2 7) (make-point 4 3)))
-(define R3 (make-rectangle 2 4 7 3))
-(perimeter-rectangle R3)
-(area-rectangle R3)
+;(define R3 (make-rectangle 2 4 7 3))
+;(perimeter-rectangle R3)
+;(area-rectangle R3)
 
 ;(define R4
 ;  (make-rectangle (make-point 4 7) (make-point 2 3)))
-(define R4 (make-rectangle 4 2 7 3))
-(perimeter-rectangle R4)
-(area-rectangle R4)
+;(define R4 (make-rectangle 4 2 7 3))
+;(perimeter-rectangle R4)
+;(area-rectangle R4)
+
+; 2.2.1 Representing Sequences
+
+(define one-through-four (list 1 2 3 4))
+one-through-four
+(car one-through-four)
+(cdr one-through-four)
+(car (cdr one-through-four))
+(cons 10 one-through-four)
+(cons 5 one-through-four)
