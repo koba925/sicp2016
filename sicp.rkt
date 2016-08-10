@@ -1577,4 +1577,33 @@
         l
         (last-pair m))))
 
-(last-pair (list 23 72 149 34))
+; (last-pair (list 23 72 149 34))
+
+; Exercise 2.18.
+
+(define (reverse l)
+  (define (iter l ans)
+    (if (null? l)
+        ans
+        (iter (cdr l) (cons (car l) ans))))
+  (iter l (quote ())))
+
+;(reverse (list 1 4 9 16 25))
+
+(define (reverse-r l)
+  (if (null? l)
+      l
+      (append (reverse-r (cdr l))
+              (cons (car l) (quote ())))))
+
+;(reverse-r (list 1 4 9 16 25))
+
+(define (append-i list1 list2)
+  (define (iter l ans)
+    (if (null? l)
+        ans
+        (iter (cdr l) (cons (car l) ans))))
+  (iter (reverse list1) list2))
+
+;(append-i squares odds)
+;(append-i odds squares)
