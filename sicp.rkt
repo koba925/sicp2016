@@ -1521,17 +1521,24 @@
 
 ;2.1.3 What Is Meant by Data?
 
-(define (kons x y)
+(define (cons2 x y)
   (define (dispatch m)
     (cond ((= m 0) x)
           ((= m 1) y)
           (else (error "Argument not 0 or 1 -- CONS" m))))
   dispatch)
-(define (kar z) (z 0))
-(define (kdr z) (z 1))
+(define (car2 z) (z 0))
+(define (cdr2 z) (z 1))
 
-;(kar (kdr (kons (kons 1 2) (kons 3 4))))
+(car2 (cdr2 (cons2 (cons2 1 2) (cons2 3 4))))
 
+; Exercise 2.4.
+
+(define (cons3 x y) (lambda (m) (m x y)))
+(define (car3 z) (z (lambda (p q) p)))
+(define (cdr3 z) (z (lambda (p q) q)))
+
+(car3 (cdr3 (cons3 (cons3 1 2) (cons3 3 4))))
 
 ;----
 
