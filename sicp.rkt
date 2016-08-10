@@ -1537,7 +1537,7 @@
       (list-ref (cdr items) (- n 1))))
 (define squares (list 1 4 9 16 25))
 
-(list-ref squares 3)
+;(list-ref squares 3)
 
 (define (length items)
   (if (null? items)
@@ -1545,7 +1545,7 @@
       (+ 1 (length (cdr items)))))
 (define odds (list 1 3 5 7))
 
-(length odds)
+;(length odds)
 
 (define (length-i items)
   (define (length-iter a count)
@@ -1554,13 +1554,27 @@
         (length-iter (cdr a) (+ 1 count))))
   (length-iter items 0))
 
-(length-i odds)
+;(length-i odds)
 
 (define (append list1 list2)
   (if (null? list1)
       list2
       (cons (car list1) (append (cdr list1) list2))))
 
-(append squares odds)
-(append odds squares)
+;(append squares odds)
+;(append odds squares)
 
+; Exercise 2.17.
+
+;(define (last-pair l)
+;  (if (null? (cdr l))
+;      l
+;      (last-pair (cdr l))))
+
+(define (last-pair l)
+  (let ((m (cdr l)))
+    (if (null? m)
+        l
+        (last-pair m))))
+
+(last-pair (list 23 72 149 34))
