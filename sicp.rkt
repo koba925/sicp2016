@@ -1519,6 +1519,22 @@
 ;(perimeter-rectangle R4)
 ;(area-rectangle R4)
 
+;2.1.3 What Is Meant by Data?
+
+(define (kons x y)
+  (define (dispatch m)
+    (cond ((= m 0) x)
+          ((= m 1) y)
+          (else (error "Argument not 0 or 1 -- CONS" m))))
+  dispatch)
+(define (kar z) (z 0))
+(define (kdr z) (z 1))
+
+;(kar (kdr (kons (kons 1 2) (kons 3 4))))
+
+
+;----
+
 ; 2.2.1 Representing Sequences
 
 (define one-through-four (list 1 2 3 4))
