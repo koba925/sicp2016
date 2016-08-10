@@ -1530,7 +1530,7 @@
 (define (car2 z) (z 0))
 (define (cdr2 z) (z 1))
 
-(car2 (cdr2 (cons2 (cons2 1 2) (cons2 3 4))))
+; (car2 (cdr2 (cons2 (cons2 1 2) (cons2 3 4))))
 
 ; Exercise 2.4.
 
@@ -1538,7 +1538,23 @@
 (define (car3 z) (z (lambda (p q) p)))
 (define (cdr3 z) (z (lambda (p q) q)))
 
-(car3 (cdr3 (cons3 (cons3 1 2) (cons3 3 4))))
+; (car3 (cdr3 (cons3 (cons3 1 2) (cons3 3 4))))
+
+; Exercise 2.5.
+
+(define (cons4 x y) (* (expt 2 x) (expt 3 y)))
+(define (cr z n)
+  (if (= (remainder z n) 0)
+      (+ 1 (cr (/ z n) n))
+      0))
+(define (car4 z) (cr z 2))
+(define (cdr4 z) (cr z 3))
+
+(car4 (car4 (cons4 (cons4 3 4) (cons4 5 6))))
+(cdr4 (car4 (cons4 (cons4 3 4) (cons4 5 6))))
+(car4 (cdr4 (cons4 (cons4 3 4) (cons4 5 6))))
+(cdr4 (cdr4 (cons4 (cons4 3 4) (cons4 5 6))))
+
 
 ;----
 
