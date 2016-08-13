@@ -1586,15 +1586,17 @@
 ; (define one (lambda (f) (lambda (x) (f x))))
 ; (define two (lambda (f) (lambda (x) (f (f x)))))
 
-;(define (+' m n)
-;  (if (=' m zero)
+;(define (ch+ n m)
+;  (if (zero? m)
 ;      n
-;      (+' (sub-1 m) (add-1 n))))
+;      (ch+ (add-1 n) (sub-1 m))))
 
 (define (ch+ n m)
   ((n add-1) m))
 
 (((ch+ one two) add1) 1)
+
+; 2.1.4 Extended Exercise: Interval Arithmetic
 
 ;----
 

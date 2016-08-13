@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<title>sicp11</title>
+
+
+
+</head>
+
+<body>
+
+<h1 id="toc_0">SICPを読む(11)</h1>
+
+<h2 id="toc_1">Chapter 2 Building Abstractions with Data</h2>
+
+<p>ここは第2章の概要<br>
+コードは出てきません</p>
+
+<ul>
+<li>第1章では手続きを組み合わせて合成手続きを作ることにより抽象化を行った</li>
+<li>第2章ではデータを組み合わせて合成データを作ることによる抽象化を行う</li>
+<li>手続きもデータも、抽象化することにより概念のレベルを上げることができる</li>
+<li>たとえば、有理数はふたつの整数、つまり分母と分子で表すことができる</li>
+<li>しかし、ふたつの整数がばらばらに存在しているだけでは扱いが煩雑</li>
+</ul>
+
+<p>データを組み合わせる方法がないとすると、たとえば1/2+1/3=5/6を表現しようとしたら</p>
+
+<div><pre><code class="language-none">(add-numer n1 d1 n2 d2)
+(add-denom n1 d1 n2 d2)</code></pre></div>
+
+<p>などといった関数を作り<br>
+<code>(add-numer 1 2 1 3)</code>から5を得、<br>
+<code>(add-denom 1 2 1 3)</code>から6を得る、といったことをしなければなりません<br>
+構造体とかが普通にある世界にいると逆にこういった状況のほうが想像しづらいくらいですけど</p>
+
+<p>やりたいことは<code>1/2</code>や<code>1/3</code>を直接データで表し<br>
+そのまま手続きに渡して<br>
+<code>5/6</code>という値を得ることです</p>
+
+<ul>
+<li>分子と分母を組み合わせて、有理数を表すひとつのデータとして扱う方法がある</li>
+<li>ひとつのデータとして扱えるようになると、それがふたつの整数で表されているということも考えずに済むようになる</li>
+<li>これをデータ抽象化と呼ぶ</li>
+<li>データ抽象化によって、言語の表現力が増し、プログラムの設計・維持・修正が容易になる</li>
+</ul>
+
+<p>手続きによる抽象化と、データ抽象化が対になって説明されてます</p>
+
+<ul>
+<li>線形結合を例に取ると、ax+byを<code>(add (mul a x) (mul b y))</code>と表し、a・b・x・yが数の時ばかりでなく、addとmulが定義されているすべての対象を扱えるようにすることができる</li>
+<li>このとき、a・b・x・yが何で、内部でどう表現されているかを知る必要はなく、ただaddとmulが定義されている対象であることを知っていればよい</li>
+<li>データ抽象化によって、プログラムのパーツとパーツの間に「抽象化の壁」を築いていく</li>
+</ul>
+
+<p>えーとこれは・・・多相性、とはちょっと違う？<br>
+なんだっけ？</p>
+
+<ul>
+<li>複雑なデータオブジェクトを作るには、データオブジェクトを組み合わせるための手段が必要</li>
+<li>いろいろな手段が考えられるが、データを操作するための特別な操作を使わないで、手続きだけを使ってデータオブジェクトを組み合わせることもできる</li>
+<li>クロージャという概念がひとつの鍵</li>
+<li>もうひとつの鍵は、抽象化されたデータがモジュールを組合わせる時のインタフェースとなること</li>
+</ul>
+
+<p>&#39;conventional interface&#39;っていうのがいまひとつピンとこなくて日本語にできません<br>
+読んでいけばわかるかな</p>
+
+<ul>
+<li><code>symbolic expression</code>でさらに言語の表現力を高める</li>
+<li>オブジェクトの集まりを表すにはさまざまな方法があり、時間やスペースの消費が大きく異なる</li>
+<li>場所によって異なる表現をされたデータを&#39;generic operations&#39;によって扱う</li>
+<li>特に、&#39;data-directed programming&#39;を使えば後からデータ表現を追加することもできる</li>
+</ul>
+
+<p>まあいろいろやるよってことですかね</p>
+
+<h2 id="toc_2">2.1 Introduction to Data Abstraction</h2>
+
+<ul>
+<li>データを抽象化すれば、複合データの使い方と、複合データの構造を分けて考えることができる</li>
+<li>データ抽象化とは、プログラムが「抽象データ」を扱うように構造を作ること
+
+<ul>
+<li>プログラムは、タスクを実行するのにどうしても必要なこと以外は仮定しない</li>
+<li>「具体的な」表現は、そのデータを使うプログラムとは独立して定義される</li>
+<li>これらの間のインタフェースは&#39;selector&#39;と&#39;constructor&#39;と呼ばれる手続きで表される</li>
+</ul></li>
+</ul>
+
+<p>モジュールとかクラスの設計とかでもきっと大事</p>
+
+<p>&#39;selector&#39;っていう言い方は手習いにも出てきてましたね<br>
+&#39;constructor&#39;はなんでしょう<br>
+普通にコンストラクタって呼ばれてるアレのことかな</p>
+
+<h2 id="toc_3">2.1.1 Example: Arithmetic Operations for Rational Numbers</h2>
+
+<p>有理数の加減乗除と比較ができるようにするよ！</p>
+
+<ul>
+<li>まず、分母と分子から有理数を作る手続きと、有理数から分母と分子を取り出す手続きがあると仮定する</li>
+</ul>
+
+<p>これが&#39;constructor&#39;と&#39;selector&#39;てことですね<br>
+それほど大層な話ではありませんでした</p>
+
+<ul>
+<li><code>(make-rat &lt;n&gt; &lt;d&gt;)</code>はn/dという有理数を返す</li>
+<li><code>(numer &lt;x&gt;)</code>は有理数xの分子を返す</li>
+<li><code>(denom &lt;x&gt;)</code>は有理数xの分母を返す</li>
+</ul>
+
+<p>けど、ここではあくまで「仮定する」であって「書いてみる」ではないぞ、って<br>
+言いたいんでしょうか<br>
+こういう考え方をしたほうが「タスクを実行するのにどうしても必要なこと以外は<br>
+仮定しない」を徹底できるぞ、ってことでしょうか<br>
+自分はついボトムから書いてちょっとずつ動かしたくなりますけど</p>
+
+<ul>
+<li><code>wishful thinking</code>という戦略を使った</li>
+<li>いまのところ有理数をどうやって表すかはわからないけれども</li>
+<li>とにかくこの３つがあれば四則演算と比較を行う手続きを書くことができる</li>
+</ul>
+
+<p>書けますね<br>
+動かせないけど</p>
+
+<div><pre><code class="language-none">(define (add-rat x y)
+  (make-rat (+ (* (numer x) (denom y))
+               (* (numer y) (denom x)))
+            (* (denom x) (denom y))))
+(define (sub-rat x y)
+  (make-rat (- (* (numer x) (denom y))
+               (* (numer y) (denom x)))
+            (* (denom x) (denom y))))
+(define (mul-rat x y)
+  (make-rat (* (numer x) (numer y))
+            (* (denom x) (denom y))))
+(define (div-rat x y)
+  (make-rat (* (numer x) (denom y))
+            (* (denom x) (numer y))))
+(define (equal-rat? x y)
+  (= (* (numer x) (denom y))
+     (* (numer y) (denom x))))</code></pre></div>
+
+<p>動かせないコードが溜まっていくのはプレッシャーです</p>
+
+<ul>
+<li>あとは分子と分母をくっつけて有理数にする方法があればよい</li>
+</ul>
+
+<h2 id="toc_4">Pairs</h2>
+
+<ul>
+<li>このデータ抽象を具体的に実装するには<code>cons</code>という手続きで「ペア」を作る</li>
+<li>「ペア」から要素を取り出すには<code>car</code>と<code>cdr</code>を使う</li>
+</ul>
+
+<p>やっと出ました</p>
+
+<ul>
+<li>ペアを使うとあらゆる種類の複雑なデータ構造を表すことができる</li>
+<li>ペアから作られたデータオブジェクトを「リスト構造データ」と呼ぶ</li>
+</ul>
+
+<h2 id="toc_5">Representing rational numbers</h2>
+
+<p>ペアを素直に使って有理数を表します<br>
+手習いではペアはなかったことにされてましたので対象的なアプローチですね</p>
+
+<div><pre><code class="language-none">(define (make-rat n d) (cons n d))
+(define (numer x) (car x))
+(define (denom x) (cdr x))</code></pre></div>
+
+<p>これで動かせるようになりました<br>
+ひと安心</p>
+
+<p>さてこれは説明の都合だったのか、こういう順に書きなさいということだったのか？</p>
+
+<ul>
+<li>この実装では約分が行われていない</li>
+<li><code>make-rat</code>を変えるだけで約分することができる</li>
+</ul>
+
+<div><pre><code class="language-none">(define (make-rat n d)
+  (let ((g (gcd n d)))
+    (cons (/ n g) (/ d g))))</code></pre></div>
+
+<ul>
+<li><code>make-rat</code>の内部を変更しても、<code>add-rat</code>などの修正は不要</li>
+</ul>
+
+<p>上で言っている言い方を使えば<br>
+<code>add-rat</code>などが約分について不要な仮定をしてなかったから、ということになりますかね</p>
+
+<h3 id="toc_6">Exercise 2.1.</h3>
+
+<ul>
+<li>正負の有理数を扱う<code>make-rat</code>を書け</li>
+<li>正なら分母・分子とも正、負なら分子のみ負となるように正規化せよ</li>
+</ul>
+
+<p>分母と分子がそれぞれ正負で4通りの場合分けになるかと思いましたが<br>
+よく考えたら分母が負の時だけ分母分子の符号を変えてやるだけでいいですね<br>
+<code>gcd</code>には絶対値を渡してあげましょうか</p>
+
+<div><pre><code class="language-none">(define (make-rat n d)
+  (let ((g (gcd (abs n) (abs d))))
+    (if (&lt; d 0)
+        (cons (/ (- n) g) (/ (- d) g))
+        (cons (/ n g) (/ d g)))))</code></pre></div>
+
+<p>もちろん<code>add-rat</code>などに修正は不要です</p>
+
+<h2 id="toc_7">2.1.2 Abstraction Barriers</h2>
+
+<p>ここ大事な感じ！<br>
+※個人の感想です</p>
+
+<ul>
+<li>我々はcons、car、cdrを使ってmake-rat、number、denomを使って有理数を定義した</li>
+<li>さらにmake-rat、number、denomだけを使ってadd-rat等の有理数の演算と比較を定義した</li>
+<li>有理数を扱うプログラムはコンストラクタmake-ratとadd-rat等だけを使えば実装できる</li>
+<li>このようにして、有理数を扱う「パッケージ」を作ることができた</li>
+<li>有理数を扱うプログラムは有理数パッケージの「公開手続き」だけを使って有理数を扱うことができ、make-ratやadd-rat等がどう実装されているか知る必要はない</li>
+</ul>
+
+<p>つまり</p>
+
+<ul>
+<li>あるタイプのデータオブジェクトについて、あらゆる操作を表現できるような基本操作の組を探しだし</li>
+<li>そのタイプのデータオブジェクトを扱うときは、その基本操作だけを使うようにする</li>
+<li>つまり、手続きがインタフェースとなり、抽象されたデータオブジェクトを扱うプログラムと、そのデータオブジェクトを抽象する（実装する）プログラムの間に壁を作ることができる</li>
+</ul>
+
+<p>これにより</p>
+
+<ul>
+<li>プログラムを複数のレベルに分割することができて、メンテナンスが容易になる</li>
+<li>プログラムの他の部分を修正することなくデータオブジェクトの表現方法を後で変更できる</li>
+<li>設計時に表現方法を決定できない場合は先送りして他の部分の開発を進めることも容易</li>
+</ul>
+
+<h3 id="toc_8">Exercise 2.2.</h3>
+
+<ul>
+<li>始点と終点のペアにより平面上の線分を表現せよ</li>
+</ul>
+
+<p>わりあい親切に指示されているので指示されたとおりに書くだけです</p>
+
+<div><pre><code class="language-none">(define (make-segment sp ep) (cons sp ep))
+(define (start-segment s) (car s))
+(define (end-segment s) (cdr s))
+
+(define (make-point x y) (cons x y))
+(define (x-point p) (car p))
+(define (y-point p) (cdr p))</code></pre></div>
+
+<p>他の言語のコンストラクタでは名詞を使うことが多いですけど<br>
+ここではmake-と動詞をつけてますね<br>
+<code>(make-segment (make-point 2 3) (make-point 4 5))</code>と書くより<br>
+<code>(segment (point 2 3) (point 4 5))</code>の方が自然な気がしなくもないですけど<br>
+手続きだと思えば不自然ではないってことかなあ</p>
+
+<p>make-segmentはsegmentを作るって意味ですけど<br>
+start-segmentはstartのsegmentって意味ではないですね<br>
+start-pointの方が意味的には自然な気がしますけど<br>
+-segmentは型を表してるような感じ？</p>
+
+<ul>
+<li>線分の中点を求める手続きを定義せよ</li>
+</ul>
+
+<p>始点と終点の座標の平均を取ればいいので</p>
+
+<div><pre><code class="language-none">(define (midpoint-segment s)
+  (make-point (average (x-point (start-segment s))
+                       (x-point (end-segment s)))
+              (average (y-point (start-segment s))
+                       (y-point (end-segment s)))))</code></pre></div>
+
+<h3 id="toc_9">Exercise 2.3.</h3>
+
+<ul>
+<li>長方形の表現を実装せよ(2.2の結果を使いたくなるかもしれない)</li>
+</ul>
+
+<p>これ、書いてないけど辺がx軸・y軸と平行な長方形ってことでいいのかな<br>
+傾いてもいいことにするとちょっと大変そう</p>
+
+<p>2.2.の結果を使いたくなるかも、っていうのは使ったほうがいいってことなんだろうなあ<br>
+対角線上の2点で長方形を表すことにしようか<br>
+いや、segmentが対角線ってことにする手もある<br>
+でもちょっとそれは不自然かな<br>
+pointをふたつ覚えておくくらいが妥当？</p>
+
+<p>とりあえずコンストラクタを作ります<br>
+なんか早くもセンスを問われている気分<br>
+pointで渡してもらうのかx1、y1、x2、y2を渡してもらうのか<br>
+pointで覚えておくのか、x1、y1、x2、y2で覚えておくのか<br>
+x1&gt;x2、y1&gt;y2のときは順番を変えて覚えておくか</p>
+
+<p>まずは最もシンプルに書くならこうでしょうか</p>
+
+<div><pre><code class="language-none">(define (make-rectangle p1 p2) (cons p1 p2))
+(define (p1-rectangle r) (car r))
+(define (p2-rectangle r) (cdr r))</code></pre></div>
+
+<ul>
+<li>周の長さと面積を求める手続きを書け</li>
+</ul>
+
+<p>こうなります</p>
+
+<div><pre><code class="language-none">(define (perimeter-rectangle r)
+  (* 2 (+ (abs (- (x-point (p1-rectangle r)) (x-point (p2-rectangle r))))
+          (abs (- (y-point (p1-rectangle r)) (y-point (p2-rectangle r)))))))
+(define (area-rectangle r)
+  (* (abs (- (x-point (p1-rectangle r)) (x-point (p2-rectangle r))))
+     (abs (- (y-point (p1-rectangle r)) (y-point (p2-rectangle r))))))</code></pre></div>
+
+<p>ちょっと面倒<br>
+absを呼び出し側にやらせるというのはどうでしょうか<br>
+x1&gt;x2、y1&gt;y2のときは順番を変えて覚えておくように、<br>
+つまりp1が左下、p2が右上の点を指すようにしてみます</p>
+
+<div><pre><code class="language-none">(define (make-rectangle P1 P2)
+  (cons (make-point (min (x-point P1) (x-point P2))
+                    (min (y-point P1) (y-point P2)))
+        (make-point (max (x-point P1) (x-point P2))
+                    (max (y-point P1) (y-point P2)))))</code></pre></div>
+
+<p>そうするとperimeter-rectangleとarea-rectangleではabsが不要になります</p>
+
+<div><pre><code class="language-none">(define (perimeter-rectangle r)
+  (* 2 (+ (- (x-point (p2-rectangle r)) (x-point (p1-rectangle r)))
+          (- (y-point (p2-rectangle r)) (y-point (p1-rectangle r))))))
+(define (area-rectangle r)
+  (* (- (x-point (p2-rectangle r)) (x-point (p1-rectangle r)))
+     (- (y-point (p2-rectangle r)) (y-point (p1-rectangle r)))))</code></pre></div>
+
+<p>同じことですがp1は左下、p2は右上と約束を決める手もあります<br>
+これならコンストラクタもセレクタもシンプルにしたまま使い方もシンプルになります<br>
+assertとかつけると同じことかもしれませんが</p>
+
+<p>rectangle側が簡単になる代わりに呼ぶ側が引数に注意しないといけなくなります<br>
+呼び出し側の立場からするとx1&gt;x2ならx1とx2を入れ替えるというのは毎回やるべきことだから<br>
+rectangle側で済ませてほしいところです</p>
+
+<p>一方<br>
+make-rectangleしたときのp1、p2と<br>
+p1-rectangle、p2-rectangleで取得したp1、p2が異なるというのは<br>
+いかがなものかという気もします</p>
+
+<p>呼び出し側がx-pointとかy-pointを使わないといけないというのもどうでしょうか<br>
+p1、p2はそのまま覚えておくとして、こういうセレクタを使うことにしたら？</p>
+
+<div><pre><code class="language-none">(define (x1-rectangle r)
+  (min (x-point (car r)) (x-point (cdr r))))
+(define (x2-rectangle r)
+  (max (x-point (car r)) (x-point (cdr r))))
+(define (y1-rectangle r)
+  (min (y-point (car r)) (y-point (cdr r))))
+(define (y2-rectangle r)
+  (max (y-point (car r)) (y-point (cdr r))))
+
+(define (max a b) (if (&gt; a b) a b))
+(define (min a b) (if (&lt; a b) a b))</code></pre></div>
+
+<p>そうすると周と面積はこうなります</p>
+
+<div><pre><code class="language-none">(define (perimeter-rectangle r)
+  (* 2 (+ (- (x2-rectangle r) (x1-rectangle r))
+          (- (y2-rectangle r) (y1-rectangle r)))))
+
+(define (area-rectangle r)
+  (* (- (x2-rectangle r) (x1-rectangle r))
+     (- (y2-rectangle r) (y1-rectangle r))))</code></pre></div>
+
+<p>呼び出す側からするとこれでかなりすっきりしました<br>
+辺の長さを出す手続きを作ればもっとすっきりするかな</p>
+
+<p>でもこれでは半端かもしれません<br>
+引数はpointならpointで、x1、x2、y1、y2ならx1、x2、y1、y2で押し通すのがスジ？<br>
+x1、x2、y1、y2で押し通すならこうなります</p>
+
+<div><pre><code class="language-none">(define (make-rectangle x1 x2 y1 y2)
+  (cons (make-point (min x1 x2) (min y1 y2))
+        (make-point (max x1 x2) (max y1 y2))))</code></pre></div>
+
+<p>内部ではpointを使っています<br>
+consとcar、cdrだけで書いてもすぐに書けますが<br>
+もしかするとpointがとても便利な手続きを実装しているかもしれませんし<br>
+ポジティブに捉えれば、内部ではpointを使って表現しているけれども<br>
+外部からはその表現を隠している、とも言えそうです</p>
+
+<p>今ひとつ決め手にかけますが<br>
+見た目もすっきりしましたしこれを回答とします</p>
+
+<ul>
+<li>異なる表現を実装せよ</li>
+<li>辺の長さと面積を求める手続きはそのまま使えるか？</li>
+</ul>
+
+<p>すでにいろいろ試しました<br>
+インタフェースまで変わるとそのままでは使えなくなりますが<br>
+内部だけで表現を変えるならそのまま使えます</p>
+
+<p>x1、x2、y1、y2の順番を先に変えておいたり</p>
+
+<div><pre><code class="language-none">(define (make-rectangle p1 p2)
+  (cons (make-point (min (x-point p1) (x-point p2))
+                    (min (y-point p1) (y-point p2)))
+        (make-point (max (x-point p1) (x-point p2))
+                    (max (y-point p1) (y-point p2)))))
+
+(define (x1-rectangle r) (x-point (car r)))
+(define (x2-rectangle r) (x-point (cdr r)))
+(define (y1-rectangle r) (y-point (car r)))
+(define (y2-rectangle r) (y-point (cdr r)))</code></pre></div>
+
+<p>pointを使わずに書いてみたり（実質同じですが）</p>
+
+<div><pre><code class="language-none">(define (make-rectangle x1 x2 y1 y2)
+  (cons (cons (min x1 x2) (min y1 y2))
+        (cons (max x1 x2) (max y1 y2))))</code></pre></div>
+
+<p>インタフェースが定まっていれば実装は後で考えることができると言っても<br>
+やってみるとこんな簡単な例でさえインタフェースを決めるのがなかなか大変</p>
+
+<p>上で挙げたいろいろの他にも<br>
+make-rectangle-from-pointとmake-rectangle-from-xyとかして<br>
+両方のインタフェースを持っておいてもいいかもしれない<br>
+いやそれは「最小の仮定」に反するかも知れない<br>
+などといろいろ悩んで結論なし</p>
+
+<p>指針がないよりはずっと考えやすくはなってるんでしょうが実践はそう甘くはない感じ</p>
+
+
+
+
+</body>
+
+</html>

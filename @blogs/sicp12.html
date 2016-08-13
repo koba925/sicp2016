@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<title>sicp12</title>
+
+
+
+</head>
+
+<body>
+
+<h1 id="toc_0">SICPを読む(12)</h1>
+
+<h2 id="toc_1">2.1.3 What Is Meant by Data?</h2>
+
+<p>このへんの話は好きなところ</p>
+
+<ul>
+<li>add-ratやsub-ratといった有理数の操作ははmake-rat、numer、denomで実装できた</li>
+<li>これらの操作は分子・分母・有理数というデータオブジェクトにより定義できたと言える</li>
+<li>データオブジェクトのふるまいはmake-rat、numer、denomにより決まっている</li>
+<li>では、「データ」とはいったいなにか</li>
+</ul>
+
+<p>哲学ですか</p>
+
+<ul>
+<li>セレクタとコンストラクタが定義されているものというだけでは不十分</li>
+<li>xが<code>(make-rat n d)</code>ならば必ず<code>(numer x)/(denom x)=n/d</code>を満たす</li>
+<li>セレクタとコンストラクタと、それらが満たすべき条件をあわせたものがデータであると考えることができる</li>
+</ul>
+
+<p>無定義述語みたいな話</p>
+
+<ul>
+<li>ペアについても同様なことが言える</li>
+<li>zが<code>(cons x y)</code>ならば必ず<code>(car z)</code>がxであり<code>(cdr z)</code>がyである必要がある</li>
+<li>Schemeではcons、car、cdrは始めから組み込まれているが、この条件を満たせばなんでもペアとして使うことができる</li>
+<li>驚くべきことに、何のデータ構造も使わず、手続きだけでcons、car、cdrを実装することができる</li>
+</ul>
+
+<div><pre><code class="language-none">(define (cons2 x y)
+  (define (dispatch m)
+    (cond ((= m 0) x)
+          ((= m 1) y)
+          (else (error &quot;Argument not 0 or 1 -- CONS&quot; m))))
+  dispatch)
+(define (car2 z) (z 0))
+(define (cdr2 z) (z 1))</code></pre></div>
+
+<p>consを定義してしまうと大変なので名前は変えてます</p>
+
+<p>昔読んだ時はこれの意味わからなかったんですよね<br>
+今は手習い読んだ（特にvalueを書いた）おかげですんなり理解できるようになりました<br>
+そういえばここでもクロージャについては特に触れずに説明してますね<br>
+手習いと同じだ<br>
+最初からそういうものだと教えられればすんなり飲み込めるのかな</p>
+
+<ul>
+<li>手続きのこういう使い方は我々が思うところの自然なデータの記法とはまったく異なる</li>
+<li>しかしこれは上記の条件を満たしているおり、ペアを表現しているといえる</li>
+<li>これらを組み合わせてペアを使っている限り、普通のcons、car、cdrと区別することはできない</li>
+<li>手続きをオブジェクトとして扱えるならば、複合データを表現することができるということになる</li>
+<li>ちょっと奇妙に思えるかもしれないが、これはメッセージパッシングと呼ばれ、これからもよく使う</li>
+</ul>
+
+<h3 id="toc_2">Exercise 2.4.</h3>
+
+<ul>
+<li>以下の表現で<code>(car (cons x y))</code>がxを返すことを確かめよ</li>
+</ul>
+
+<div><pre><code class="language-none">(define (cons x y) (lambda (m) (m x y)))
+(define (car z) (z (lambda (p q) p)))</code></pre></div>
+
+<p>置換モデルで確かめます</p>
+
+<div><pre><code class="language-none">  (car (cons X Y))
+= (car (lambda (m) (m X Y)))
+= ((lambda (m) (m X Y)) (lambda (p q) p))
+= ((lambda (p q) p) X Y)
+= X</code></pre></div>
+
+<ul>
+<li>cdrを書け</li>
+</ul>
+
+<div><pre><code class="language-none">(define (cdr z) (z (lambda (p q) q)))</code></pre></div>
+
+<p>ifを使って書くよりこっちの方がシンプルに見えます<br>
+ちょっとラムダ計算入門みたいな感じ</p>
+
+<h3 id="toc_3">Exercise 2.5.</h3>
+
+<ul>
+<li>2^a*3^bの形で非負整数a、bのペアを表現せよ</li>
+</ul>
+
+<p>素因数分解の一意性からあいまいさは生じず、ある数が2^a*3^bの形であれば必ず<br>
+aとbが特定できるわけですね</p>
+
+<p>carとかcdrは要するに2とか3で何回割れるか計算すればいいので</p>
+
+<div><pre><code class="language-none">(define (cons4 x y) (* (expt 2 x) (expt 3 y)))
+(define (cr z n)
+  (if (= (remainder z n) 0)
+      (+ 1 (cr (/ z n) n))
+      0))
+(define (car4 z) (cr z 2))
+(define (cdr4 z) (cr z 3))</code></pre></div>
+
+<p>たとえば<code>(cons4 (cons4 3 4) (cons4 5 6))</code>は2^648*3^23328という数になります<br>
+さすがに一瞬待ちますが計算できてしまうのがすごい<br>
+ゲーデル数も計算できるかな（無理</p>
+
+<h3 id="toc_4">Exercise 2.6.</h3>
+
+<ul>
+<li>手続きが使えれば数がなくてもなんとかなる</li>
+<li>0と+1を以下のように定義する</li>
+</ul>
+
+<p>0と+1さえあれば自然数(0を含む)はなんとかなります<br>
+ありがとうG. Peano</p>
+
+<div><pre><code class="language-none">(define zero
+  (lambda (f) (lambda (x) x)))
+(define (add-1 n)
+  (lambda (f) (lambda (x) (f ((n f) x)))))</code></pre></div>
+
+<p>なんでしょうね<br>
+zeroは見たままの形ですがadd-1の方は少し複雑です</p>
+
+<ul>
+<li>これは発明したAlonzo Churchにちなんでチャーチ数と呼ばれる</li>
+</ul>
+
+<p>計算機科学っぽく</p>
+
+<ul>
+<li>oneとtwoをzeroやadd-1を使わずに定義せよ</li>
+</ul>
+
+<p>でもzeroとadd-1を使った形から出発します</p>
+
+<div><pre><code class="language-none">  one
+= (add-1 zero)
+= ((lambda (n) (lambda (f) (lambda (x) (f ((n f) x))))) (lambda (f) (lambda (x) x)))
+= (lambda (f) (lambda (x) (f (((lambda (f) (lambda (x) x)) f) x))))
+= (lambda (f) (lambda (x) (f ((lambda (x) x) x))))
+= (lambda (f) (lambda (x) (f x)))
+
+  two
+= (add-1 one)
+= (add-1 (lambda (f) (lambda (x) (f x))))
+= ((lambda (n) (lambda (f) (lambda (x) (f ((n f) x))))) (lambda (f) (lambda (x) (f x))))
+= (lambda (f) (lambda (x) (f (((lambda (f) (lambda (x) (f x))) f) x))))
+= (lambda (f) (lambda (x) (f ((lambda (x) (f x)) x))))
+= (lambda (f) (lambda (x) (f (f x))))</code></pre></div>
+
+<p>これでいいかな<br>
+並べて書くと</p>
+
+<div><pre><code class="language-none">zero = (lambda (f) (lambda (x) x)))
+one  = (lambda (f) (lambda (x) (f x)))
+two  = (lambda (f) (lambda (x) (f (f x))))</code></pre></div>
+
+<p>自然数nを、「関数fを引数に取り、xにfをn回適用する関数を返す関数」で表現していることがわかります</p>
+
+<p>逆算すると、add-1はxにfをもう1回余分に適用する関数を返す関数なはず<br>
+そう思ってadd-1の定義を見てみると</p>
+
+<ol>
+<li>(n f)はfをn回適用する関数</li>
+<li>((n f) x)はxにfをn回適用した結果</li>
+<li>(f ((n f) x))はxにfをn回適用した結果にfを適用した結果<br>
+つまりxにfを(n+1)回適用した結果</li>
+</ol>
+
+<p>うんn+1になってそうです</p>
+
+<ul>
+<li>+を、add-1の繰り返しでない形で定義せよ</li>
+</ul>
+
+<p>add-1の繰り返しの形ってどういうのかなあ<br>
+手習い思い出して書くとこんな感じだっけ</p>
+
+<div><pre><code class="language-none">(define (ch+ n m)
+  (if (zero? m)
+      n
+      (ch+ (add-1 n) (sub-1 m))))</code></pre></div>
+
+<p>確かにこれで作ろうとするとsub-1とかzero?とか作らなきゃいけなくて大変そうです</p>
+
+<p>「関数fを引数に取り、xにfをm回適用する関数を返す関数」と<br>
+「関数fを引数に取り、xにfをn回適用する関数を返す関数」とから<br>
+「関数fを引数に取り、xにfを(m+n)回適用する関数を返す関数」を作ればいいわけですから<br>
+そっち方向で考えてみます</p>
+
+<p>nにadd-1をm回適用すれば(n+m)になるはずですのでnとかmを直接使えばできそうな感じです<br>
+普通の数を使ってやってみるとこんな感じ<br>
+（このadd1は普通の数の+1です）</p>
+
+<div><pre><code class="language-none">&gt; ((zero add1) 1)
+1
+&gt; ((one add1) 2)
+3
+&gt; ((two add1) 3)
+5</code></pre></div>
+
+<p>うまくいきました<br>
+つまりこうかな</p>
+
+<div><pre><code class="language-none">(define (ch+ n m)
+  ((n add-1) m))</code></pre></div>
+
+<p>くっそ単純にできました<br>
+add-1の繰り返しでない形になってる・・・よね？<br>
+繰り返しと言えば繰り返しと言えなくもない気もしますけどたぶん大丈夫</p>
+
+<p>どうやって確かめたらいいんでしょう</p>
+
+<div><pre><code class="language-none">&gt; (ch+ one two)
+#&lt;procedure:...icp2016/sicp.rkt:1563:2&gt;</code></pre></div>
+
+<p>これじゃわかりません<br>
+：<br>
+そっかさっきと同じでいいのか</p>
+
+<div><pre><code class="language-none">&gt; (((ch+ one two) add1) 1)
+4</code></pre></div>
+
+<p>うまくいってるようです</p>
+
+<p>関数をn回適用する関数でnを表現するってのはうまいアイデアですね</p>
+
+
+
+
+</body>
+
+</html>
