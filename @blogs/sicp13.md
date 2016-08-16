@@ -2,7 +2,49 @@
 
 ## 2.1.4 Extended Exercise: Interval Arithmetic
 
-区間演算ってやつです
+もうひとつの例として区間演算を取り上げます
+回路の抵抗の話で説明されてますがそのへんは割愛
+
+* ふたつの端点で表された「区間」という抽象化されたオブジェクトがあるものとする
+* make-interval、lower-bound、upper-boundが使えるものとする
+
+コンストラクタとセレクタが「あるものとする」やり方ですね
+中身はあとで考える式
+
+```
+(define (add-interval x y)
+  (make-interval (+ (lower-bound x) (lower-bound y))
+                 (+ (upper-bound x) (upper-bound y))))
+
+(define (mul-interval x y)
+  (let ((p1 (* (lower-bound x) (lower-bound y)))
+        (p2 (* (lower-bound x) (upper-bound y)))
+        (p3 (* (upper-bound x) (lower-bound y)))
+        (p4 (* (upper-bound x) (upper-bound y))))
+    (make-interval (min p1 p2 p3 p4)
+                   (max p1 p2 p3 p4))))
+
+(define (div-interval x y)
+  (mul-interval x
+                (make-interval (/ 1.0 (upper-bound y))
+                               (/ 1.0 (lower-bound y)))))
+```
+
+うまくいきそうではありますがまだ動かせません
+
+mul-intervalは場合分けしても書けそうですけど面倒くさそう
+場合分けがきちんとわかってないとテスト書けませんけど
+でもここはちょっとスルー
+
+### Exercise 2.7.
+
+* make-intervalは`(define (make-interval a b) (cons a b))`と書ける
+* upper-boundとlower-boundを定義せよ
+
+```
+(define (lower-bound i) (car i))
+(define (upper-bound i) (cdr i))
+```
 
 
 ## 2.2 Hierarchical Data and the Closure Property

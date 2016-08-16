@@ -1484,8 +1484,8 @@
 ;(define (y1-rectangle r) (y-point (car r)))
 ;(define (y2-rectangle r) (y-point (cdr r)))
 
-(define (max a b) (if (> a b) a b))
-(define (min a b) (if (< a b) a b))
+;(define (max a b) (if (> a b) a b))
+;(define (min a b) (if (< a b) a b))
 
 ;(define (perimeter-rectangle r)
 ;  (* 2 (+ (- (x2-rectangle r) (x1-rectangle r))
@@ -1566,9 +1566,9 @@
 (define one (add-1 zero))
 (define two (add-1 one))
 
-((zero add1) 1)
-((one add1) 2)
-((two add1) 3)
+;((zero add1) 1)
+;((one add1) 2)
+;((two add1) 3)
 
 ;(add-1 zero)
 ;((lambda (n) (lambda (f) (lambda (x) (f ((n f) x))))) (lambda (f) (lambda (x) x)))
@@ -1594,9 +1594,37 @@
 (define (ch+ n m)
   ((n add-1) m))
 
-(((ch+ one two) add1) 1)
+; (((ch+ one two) add1) 1)
 
 ; 2.1.4 Extended Exercise: Interval Arithmetic
+
+(define (add-interval x y)
+  (make-interval (+ (lower-bound x) (lower-bound y))
+                 (+ (upper-bound x) (upper-bound y))))
+
+(define (mul-interval x y)
+  (let ((p1 (* (lower-bound x) (lower-bound y)))
+        (p2 (* (lower-bound x) (upper-bound y)))
+        (p3 (* (upper-bound x) (lower-bound y)))
+        (p4 (* (upper-bound x) (upper-bound y))))
+    (make-interval (min p1 p2 p3 p4)
+                 (max p1 p2 p3 p4))))
+
+(define (div-interval x y)
+  (mul-interval x
+                (make-interval (/ 1.0 (upper-bound y))
+                               (/ 1.0 (lower-bound y)))))
+
+; Exercise 2.7.
+
+(define (make-interval a b) (cons a b))
+(define (lower-bound i) (car i))
+(define (upper-bound i) (cdr i))
+
+(add-interval (make-interval 0.9 1.1) (make-interval 9.9 10.1))
+(mul-interval (make-interval 0.9 1.1) (make-interval 9.9 10.1))
+(mul-interval (make-interval -0.9 -1.1) (make-interval 9.9 10.1))
+(div-interval (make-interval 0.9 1.1) (make-interval 9.9 10.1))
 
 ;----
 
