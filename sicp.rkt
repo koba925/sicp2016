@@ -1621,10 +1621,18 @@
 (define (lower-bound i) (car i))
 (define (upper-bound i) (cdr i))
 
-(add-interval (make-interval 0.9 1.1) (make-interval 9.9 10.1))
-(mul-interval (make-interval 0.9 1.1) (make-interval 9.9 10.1))
-(mul-interval (make-interval -0.9 -1.1) (make-interval 9.9 10.1))
-(div-interval (make-interval 0.9 1.1) (make-interval 9.9 10.1))
+;(add-interval (make-interval 0.9 1.1) (make-interval 9.9 10.1))
+;(mul-interval (make-interval 0.9 1.1) (make-interval 9.9 10.1))
+;(mul-interval (make-interval -0.9 -1.1) (make-interval 9.9 10.1))
+;(div-interval (make-interval 0.9 1.1) (make-interval 9.9 10.1))
+
+; Exercise 2.8.
+
+(define (sub-interval x y)
+  (make-interval (- (lower-bound x) (upper-bound y))
+                 (- (upper-bound x) (lower-bound y))))
+
+(sub-interval (make-interval 9.9 10.1) (make-interval 0.9 1.1))
 
 ;----
 

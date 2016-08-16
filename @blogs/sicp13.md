@@ -45,7 +45,15 @@ mul-intervalは場合分けしても書けそうですけど面倒くさそう
 (define (lower-bound i) (car i))
 (define (upper-bound i) (cdr i))
 ```
+### Exercise 2.8.
 
+* 区間の差を定義せよ
+
+```
+(define (sub-interval x y)
+  (make-interval (- (lower-bound x) (upper-bound y))
+                 (- (upper-bound x) (lower-bound y))))
+```
 
 ## 2.2 Hierarchical Data and the Closure Property
 
