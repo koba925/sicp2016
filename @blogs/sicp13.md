@@ -89,6 +89,129 @@ a1,a2,b1,b2がすべて正なら
 
 ### Exercise 2.10.
 
+* 0を含む区間で割った時はエラーになるようにせよ
+
+0を含むかどうかは上端と下端の積が0以下かどうかで判定できます
+これくらいならかっこつけすぎってことはないよね
+
+```
+(define (div-interval x y)
+  (if (<= (* (lower-bound y) (upper-bound y)) 0)
+      (error "Division by 0")
+      (mul-interval x
+                    (make-interval (/ 1.0 (upper-bound y))
+                                   (/ 1.0 (lower-bound y))))))
+```
+
+### Exercise 2.11.
+
+* 端点の符号で9つに場合分けしてmul-intervalを作れ
+* かけ算が2回で済まないのは9つのうちひとつだけ
+
+場合分けスルーできませんでした
+
+普通なら正,0,負で分けるところを
+ここでは端点がふたつとも正、異符号、ふたつとも負、に分ける感じでしょうか
+端点が0の場合はどうするといいかな
+もう一方が正か負で分ける？
+それとも異符号の仲間に入れる？
+感覚的にはどっちでもいけそう
+異符号の仲間に入れよう
+あとで確かめる
+
+区間の符号（と呼ぶことに）を求める関数でも作っときますか
+下端<=上端は間違いないから両方チェックする必要はないよね
+
+```
+(define (plus?-interval x) (> (lower-bound x) 0))
+(define (minus?-interval x) (< (upper-bound x) 0))
+```
+
+愚直に場合分け
+
+```
+(define (mul-interval-c x y)
+  (cond ((plus?-interval x)
+         (cond ((plus?-interval y)  ; [1,2]x[3,4]
+                (make-interval (* (lower-bound x) (lower-bound y))
+                               (* (upper-bound x) (upper-bound y))))
+               ((minus?-interval y) ; [1,2]x[-4,-3]
+                (make-interval (* (upper-bound x) (lower-bound y))
+                               (* (lower-bound x) (upper-bound y))))
+               (else                ; [1,2]x[-3,4]
+                (make-interval (* (upper-bound x) (lower-bound y))
+                               (* (upper-bound x) (upper-bound y))))))
+        ((minus?-interval x)
+         (cond ((plus?-interval y)  ; [-2,-1]x[3,4]
+                (make-interval (* (lower-bound x) (upper-bound y))
+                               (* (upper-bound x) (lower-bound y))))
+               ((minus?-interval y) ; [-2,-1]x[-4,-3]
+                (make-interval (* (upper-bound x) (upper-bound y))
+                               (* (lower-bound x) (lower-bound y))))
+               (else                ; [-2,-1]x[-3,4]
+                (make-interval (* (lower-bound x) (upper-bound y))
+                               (* (lower-bound x) (lower-bound y))))))
+        (else
+         (cond ((plus?-interval y)  ; [-1,2]x[3,4]
+                (make-interval (* (lower-bound x) (upper-bound y))
+                               (* (upper-bound x) (upper-bound y))))
+               ((minus?-interval y) ; [-1,2]x[-4,-3]
+                (make-interval (* (upper-bound x) (lower-bound y))
+                               (* (lower-bound x) (lower-bound y))))
+               (else                ; [-1,2]x[-3,4]
+                (mul-interval x y))))))
+```
+
+else→elseのところは
+下端がa1×b2・a2×b1の小さい方、下端がa1×b1・a2×b2の大きい方、なんですが
+計算してみないとわからないので４回かけ算が必要になります
+つまりmul-intervalと同じことをやらなきゃいけないので呼び出しで書きました
+
+愚直に場合分けして、式が重複してたらまとめようかと思いましたが
+重複してるところはありませんね
+全部で16とおりある組み合わせのうち8通りが登場しています
+なにか規則性はあるかな？
+
+しかしこれ、常に正しい答えを出すという自信が持てないですね
+テスト書いてみました
+mul-intervalの中まで心配した書き方です
+
+```
+(check-equal? (mul-interval-c (make-interval 1 2) (make-interval 3 4))     '(3 . 8))
+(check-equal? (mul-interval-c (make-interval 1 2) (make-interval -4 -3))   '(-8 . -3))
+(check-equal? (mul-interval-c (make-interval 1 2) (make-interval -3 4))    '(-6 . 8))
+(check-equal? (mul-interval-c (make-interval -2 -1) (make-interval 3 4))   '(-8 . -3))
+(check-equal? (mul-interval-c (make-interval -2 -1) (make-interval -4 -3)) '(3 . 8))
+(check-equal? (mul-interval-c (make-interval -2 -1) (make-interval -3 4))  '(-8 . 6))
+(check-equal? (mul-interval-c (make-interval -1 2) (make-interval 3 4))    '(-4 . 8))
+(check-equal? (mul-interval-c (make-interval -1 2) (make-interval -4 -3))  '(-8 . 4))
+(check-equal? (mul-interval-c (make-interval -1 2) (make-interval -3 4))   '(-6 . 8))
+(check-equal? (mul-interval-c (make-interval -2 1) (make-interval -3 4))   '(-8 . 6))
+(check-equal? (mul-interval-c (make-interval -1 2) (make-interval -4 3))   '(-8 . 6))
+(check-equal? (mul-interval-c (make-interval -2 1) (make-interval -4 9))   '(-18 . 9))
+```
+
+書いたけど考慮漏れとかあるかもしれないし安心できる気がしません
+そうそう、端点に0を含む場合も確かめようとしてたんでした
+
+```
+(check-equal? (mul-interval-c (make-interval 0 2) (make-interval 3 4))     '(0 . 8))
+(check-equal? (mul-interval-c (make-interval -2 0) (make-interval 3 4))    '(-8 . 0))
+(check-equal? (mul-interval-c (make-interval 1 2) (make-interval 0 4))     '(0 . 8))
+(check-equal? (mul-interval-c (make-interval 1 2) (make-interval -3 0))    '(-6 . 0))
+(check-equal? (mul-interval-c (make-interval 0 2) (make-interval 0 4))     '(0 . 8))
+(check-equal? (mul-interval-c (make-interval 0 2) (make-interval -3 0))    '(-6 . 0))
+(check-equal? (mul-interval-c (make-interval -1 0) (make-interval 0 4))    '(-4 . 0))
+(check-equal? (mul-interval-c (make-interval -1 0) (make-interval -3 0))   '(0 . 3))
+(check-equal? (mul-interval-c (make-interval 0 0) (make-interval 3 4))     '(0 . 0))
+(check-equal? (mul-interval-c (make-interval 1 2) (make-interval 0 0))     '(0 . 0))
+```
+
+考えうる限りのすべての組み合わせを試したわけじゃないですがまあ大丈夫そうではあります
+でもお仕事とかならやってみたらうまくいってるみたいです、とか言ってちゃダメな気がします
+実際やることになったら普通にmul-intervalでやりたい
+よっぽど性能がクリティカルでかつかけ算がとても高価なときに泣く泣くいやいや書く、くらいかな
+
 ## 2.2 Hierarchical Data and the Closure Property
 
 * ペアは複合データオブジェクトを作るための糊である

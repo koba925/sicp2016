@@ -1610,10 +1610,10 @@
     (make-interval (min p1 p2 p3 p4)
                  (max p1 p2 p3 p4))))
 
-(define (div-interval x y)
-  (mul-interval x
-                (make-interval (/ 1.0 (upper-bound y))
-                               (/ 1.0 (lower-bound y)))))
+;(define (div-interval x y)
+;  (mul-interval x
+;                (make-interval (/ 1.0 (upper-bound y))
+;                               (/ 1.0 (lower-bound y)))))
 
 ; Exercise 2.7.
 
@@ -1632,7 +1632,80 @@
   (make-interval (- (lower-bound x) (upper-bound y))
                  (- (upper-bound x) (lower-bound y))))
 
-(sub-interval (make-interval 9.9 10.1) (make-interval 0.9 1.1))
+;(sub-interval (make-interval 9.9 10.1) (make-interval 0.9 1.1))
+
+; Exercise 2.10.
+
+(define (div-interval x y)
+  (if (<= (* (lower-bound y) (upper-bound y)) 0)
+      (error "Division by 0")
+      (mul-interval x
+                    (make-interval (/ 1.0 (upper-bound y))
+                                   (/ 1.0 (lower-bound y))))))
+
+;(div-interval (make-interval 0.9 1.1) (make-interval 9.9 10.1))
+;(div-interval (make-interval 0.9 1.1) (make-interval -1.0 1.0))
+;(div-interval (make-interval 0.9 1.1) (make-interval 0.0 1.0))
+
+; Exercise 2.11.
+
+(define (plus?-interval x) (> (lower-bound x) 0))
+(define (minus?-interval x) (< (upper-bound x) 0))
+(define (mul-interval-c x y)
+  (cond ((plus?-interval x)
+         (cond ((plus?-interval y)  ; [1,2]x[3,4]
+                (make-interval (* (lower-bound x) (lower-bound y))
+                               (* (upper-bound x) (upper-bound y))))
+               ((minus?-interval y) ; [1,2]x[-4,-3]
+                (make-interval (* (upper-bound x) (lower-bound y))
+                               (* (lower-bound x) (upper-bound y))))
+               (else                ; [1,2]x[-3,4]
+                (make-interval (* (upper-bound x) (lower-bound y))
+                               (* (upper-bound x) (upper-bound y))))))
+        ((minus?-interval x)
+         (cond ((plus?-interval y)  ; [-2,-1]x[3,4]
+                (make-interval (* (lower-bound x) (upper-bound y))
+                               (* (upper-bound x) (lower-bound y))))
+               ((minus?-interval y) ; [-2,-1]x[-4,-3]
+                (make-interval (* (upper-bound x) (upper-bound y))
+                               (* (lower-bound x) (lower-bound y))))
+               (else                ; [-2,-1]x[-3,4]
+                (make-interval (* (lower-bound x) (upper-bound y))
+                               (* (lower-bound x) (lower-bound y))))))
+        (else
+         (cond ((plus?-interval y)  ; [-1,2]x[3,4]
+                (make-interval (* (lower-bound x) (upper-bound y))
+                               (* (upper-bound x) (upper-bound y))))
+               ((minus?-interval y) ; [-1,2]x[-4,-3]
+                (make-interval (* (upper-bound x) (lower-bound y))
+                               (* (lower-bound x) (lower-bound y))))
+               (else                ; [-1,2]x[-3,4]
+                (mul-interval x y))))))
+
+
+(check-equal? (mul-interval-c (make-interval 1 2) (make-interval 3 4))     '(3 . 8))
+(check-equal? (mul-interval-c (make-interval 1 2) (make-interval -4 -3))   '(-8 . -3))
+(check-equal? (mul-interval-c (make-interval 1 2) (make-interval -3 4))    '(-6 . 8))
+(check-equal? (mul-interval-c (make-interval -2 -1) (make-interval 3 4))   '(-8 . -3))
+(check-equal? (mul-interval-c (make-interval -2 -1) (make-interval -4 -3)) '(3 . 8))
+(check-equal? (mul-interval-c (make-interval -2 -1) (make-interval -3 4))  '(-8 . 6))
+(check-equal? (mul-interval-c (make-interval -1 2) (make-interval 3 4))    '(-4 . 8))
+(check-equal? (mul-interval-c (make-interval -1 2) (make-interval -4 -3))  '(-8 . 4))
+(check-equal? (mul-interval-c (make-interval -1 2) (make-interval -3 4))   '(-6 . 8))
+(check-equal? (mul-interval-c (make-interval -2 1) (make-interval -3 4))   '(-8 . 6))
+(check-equal? (mul-interval-c (make-interval -1 2) (make-interval -4 3))   '(-8 . 6))
+(check-equal? (mul-interval-c (make-interval -2 1) (make-interval -4 9))   '(-18 . 9))
+
+(check-equal? (mul-interval-c (make-interval 0 2) (make-interval 3 4))     '(0 . 8))
+(check-equal? (mul-interval-c (make-interval -2 0) (make-interval 3 4))    '(-8 . 0))
+(check-equal? (mul-interval-c (make-interval 1 2) (make-interval 0 4))     '(0 . 8))
+(check-equal? (mul-interval-c (make-interval 1 2) (make-interval -3 0))    '(-6 . 0))
+(check-equal? (mul-interval-c (make-interval 0 2) (make-interval 0 4))     '(0 . 8))
+(check-equal? (mul-interval-c (make-interval 0 2) (make-interval -3 0))    '(-6 . 0))
+(check-equal? (mul-interval-c (make-interval -1 0) (make-interval 0 4))    '(-4 . 0))
+(check-equal? (mul-interval-c (make-interval -1 0) (make-interval -3 0))   '(0 . 3))
+(check-equal? (mul-interval-c (make-interval 0 0) (make-interval 3 4))     '(0 . 0))
+(check-equal? (mul-interval-c (make-interval 1 2) (make-interval 0 0))     '(0 . 0))
 
 ;----
 
