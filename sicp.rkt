@@ -1707,6 +1707,25 @@
 (check-equal? (mul-interval-c (make-interval 0 0) (make-interval 3 4))     '(0 . 0))
 (check-equal? (mul-interval-c (make-interval 1 2) (make-interval 0 0))     '(0 . 0))
 
+(define (make-center-width c w)
+  (make-interval (- c w) (+ c w)))
+(define (center i)
+  (/ (+ (lower-bound i) (upper-bound i)) 2))
+(define (width i)
+  (/ (- (upper-bound i) (lower-bound i)) 2))
+
+; (add-interval (make-center-width 2 1) (make-center-width 4 2))
+
+; Exercise 2.12.
+
+(define (make-center-percent c p)
+  (make-center-width c (* c p 0.01)))
+(define (percent i)
+  (* (/ (width i) (center i)) 100))
+
+(make-center-percent 100 5)
+(percent (make-center-percent 100 5))
+
 ;----
 
 ; 2.2.1 Representing Sequences

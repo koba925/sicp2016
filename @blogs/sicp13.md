@@ -212,6 +212,45 @@ mul-intervalの中まで心配した書き方です
 実際やることになったら普通にmul-intervalでやりたい
 よっぽど性能がクリティカルでかつかけ算がとても高価なときに泣く泣くいやいや書く、くらいかな
 
+演習から本文に戻ります
+要件が変更になりました
+
+* 中心と幅で扱えるようにせよ
+
+```
+(define (make-center-width c w)
+  (make-interval (- c w) (+ c w)))
+(define (center i)
+  (/ (+ (lower-bound i) (upper-bound i)) 2))
+(define (width i)
+  (/ (- (upper-bound i) (lower-bound i)) 2))
+```
+
+内部の表現を隠しておいたので
+コンストラクタとセレクタを追加しただけで同じように区間を扱えるようになりました
+
+```
+> (add-interval (make-center-width 2 1) (make-center-width 4 2))
+'(3 . 9)
+```
+
+ってことですね
+
+### Exercise 2.12.
+
+* 幅を％で表せるようにせよ
+* パーセントを返すセレクタも作れ
+
+さっき幅で書いてたところがパーセントになっただけなので
+さっき作った関数を大々的に使います
+
+```
+(define (make-center-percent c p)
+  (make-center-width c (* c p 0.01)))
+(define (percent i)
+  (* (/ (width i) (center i)) 100))
+```
+
 ## 2.2 Hierarchical Data and the Closure Property
 
 * ペアは複合データオブジェクトを作るための糊である
