@@ -1753,22 +1753,37 @@
 (define R1 (make-center-percent 100 1))
 (define R2 (make-center-percent 200 2))
 
-(center-percent (add-interval R1 R1))
-(center-percent (add-interval R1 R2))
-(center-percent (add-interval R2 R2))
+;(center-percent (add-interval R1 R1))
+;(center-percent (add-interval R1 R2))
+;(center-percent (add-interval R2 R2))
+;
+;(center-percent (sub-interval R1 R2))
+;(center-percent (sub-interval R2 R1))
+;
+;(center-percent (mul-interval R1 R1))
+;(center-percent (mul-interval R1 R2))
+;(center-percent (mul-interval R2 R2))
+;
+;(center-percent (div-interval R1 R1))
+;(center-percent (div-interval R1 R2))
+;(center-percent (div-interval R2 R1))
+;(center-percent (div-interval R2 R2))
 
-(center-percent (sub-interval R1 R2))
-(center-percent (sub-interval R2 R1))
+; Exercise 2.15.
 
-(center-percent (mul-interval R1 R1))
-(center-percent (mul-interval R1 R2))
-(center-percent (mul-interval R2 R2))
+(define one-i (cons 1 1))
 
-(center-percent (div-interval R1 R1))
-(center-percent (div-interval R1 R2))
-(center-percent (div-interval R2 R1))
-(center-percent (div-interval R2 R2))
+(add-interval R1 one-i)
+(add-interval one-i R1)
 
+(sub-interval R1 one-i)
+(sub-interval one-i R1)
+
+(center-percent (mul-interval R1 one-i))
+(center-percent (mul-interval one-i R1))
+
+(center-percent (div-interval R1 one-i))
+(center-percent (div-interval one-i R1))
 
 
 ;----
