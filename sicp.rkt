@@ -1723,8 +1723,53 @@
 (define (percent i)
   (* (/ (width i) (center i)) 100))
 
-(make-center-percent 100 5)
-(percent (make-center-percent 100 5))
+;(make-center-percent 100 5)
+;(percent (make-center-percent 100 5))
+
+(define (par1 r1 r2)
+  (div-interval (mul-interval r1 r2)
+                (add-interval r1 r2)))
+(define (par2 r1 r2)
+  (let ((one (make-interval 1 1)))
+    (div-interval one
+                  (add-interval (div-interval one r1)
+                                (div-interval one r2)))))
+
+;(define R1 (make-center-percent 100 10))
+;(define R2 (make-center-percent 200 10))
+;
+;R1
+;R2
+;(center (par1 R1 R2))
+;(percent (par1 R1 R2))
+;(center (par2 R1 R2))
+;(percent (par2 R1 R2))
+
+; Exercise 2.14.
+
+(define (center-percent i)
+  (cons (center i) (percent i)))
+
+(define R1 (make-center-percent 100 1))
+(define R2 (make-center-percent 200 2))
+
+(center-percent (add-interval R1 R1))
+(center-percent (add-interval R1 R2))
+(center-percent (add-interval R2 R2))
+
+(center-percent (sub-interval R1 R2))
+(center-percent (sub-interval R2 R1))
+
+(center-percent (mul-interval R1 R1))
+(center-percent (mul-interval R1 R2))
+(center-percent (mul-interval R2 R2))
+
+(center-percent (div-interval R1 R1))
+(center-percent (div-interval R1 R2))
+(center-percent (div-interval R2 R1))
+(center-percent (div-interval R2 R2))
+
+
 
 ;----
 
