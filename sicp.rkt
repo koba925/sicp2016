@@ -252,48 +252,48 @@
 (define (count-change amount)
   (cc amount 5))
 
-(define (cc amount kinds-of-coins)
-  (cond ((= amount 0) 1)
-        ((or (< amount 0) (= kinds-of-coins 0)) 0)
-        (else (+ (cc amount
-                     (- kinds-of-coins 1))
-                 (cc (- amount
-                        (first-denomination kinds-of-coins))
-                     kinds-of-coins)))))
+;(define (cc amount kinds-of-coins)
+;  (cond ((= amount 0) 1)
+;        ((or (< amount 0) (= kinds-of-coins 0)) 0)
+;        (else (+ (cc amount
+;                     (- kinds-of-coins 1))
+;                 (cc (- amount
+;                        (first-denomination kinds-of-coins))
+;                     kinds-of-coins)))))
+;
+;(define (first-denomination kinds-of-coins)
+;  (cond ((= kinds-of-coins 1) 1)
+;        ((= kinds-of-coins 2) 5)
+;        ((= kinds-of-coins 3) 10)
+;        ((= kinds-of-coins 4) 25)
+;        ((= kinds-of-coins 5) 50)))
 
-(define (first-denomination kinds-of-coins)
-  (cond ((= kinds-of-coins 1) 1)
-        ((= kinds-of-coins 2) 5)
-        ((= kinds-of-coins 3) 10)
-        ((= kinds-of-coins 4) 25)
-        ((= kinds-of-coins 5) 50)))
-
-(check-eq? (count-change 100) 292)
-
-(define step 0)
-
-(define (count-change2 amount)
-  (set! step 0)
-  (cc2 amount 5)
-  step)
-
-(define (cc2 amount kinds-of-coins)
-  (set! step (+ step 1))
-  (cond ((= amount 0) 1)
-        ((or (< amount 0) (= kinds-of-coins 0)) 0)
-        (else (+ (cc2 amount
-                      (- kinds-of-coins 1))
-                 (cc2 (- amount
-                         (first-denomination kinds-of-coins))
-                      kinds-of-coins)))))
-
-(check-eq? (count-change2 11) 55)
-
-(define (list-cc n)
-  (define (iter c)
-    (display (count-change2 c)) (newline)
-    (cond ((< c n) (iter (+ c 1)))))
-  (iter 0))
+;(check-eq? (count-change 100) 292)
+;
+;(define step 0)
+;
+;(define (count-change2 amount)
+;  (set! step 0)
+;  (cc2 amount 5)
+;  step)
+;
+;(define (cc2 amount kinds-of-coins)
+;  (set! step (+ step 1))
+;  (cond ((= amount 0) 1)
+;        ((or (< amount 0) (= kinds-of-coins 0)) 0)
+;        (else (+ (cc2 amount
+;                      (- kinds-of-coins 1))
+;                 (cc2 (- amount
+;                         (first-denomination kinds-of-coins))
+;                      kinds-of-coins)))))
+;
+;(check-eq? (count-change2 11) 55)
+;
+;(define (list-cc n)
+;  (define (iter c)
+;    (display (count-change2 c)) (newline)
+;    (cond ((< c n) (iter (+ c 1)))))
+;  (iter 0))
 
 ; (list-cc 100)
 
@@ -1750,8 +1750,8 @@
 (define (center-percent i)
   (cons (center i) (percent i)))
 
-(define R1 (make-center-percent 100 1))
-(define R2 (make-center-percent 200 2))
+;(define R1 (make-center-percent 100 1))
+;(define R2 (make-center-percent 200 2))
 
 ;(center-percent (add-interval R1 R1))
 ;(center-percent (add-interval R1 R2))
@@ -1773,18 +1773,19 @@
 
 (define one-i (cons 1 1))
 
-(add-interval R1 one-i)
-(add-interval one-i R1)
+;(add-interval R1 one-i)
+;(add-interval one-i R1)
+;
+;(sub-interval R1 one-i)
+;(sub-interval one-i R1)
+;
+;(center-percent (mul-interval R1 one-i))
+;(center-percent (mul-interval one-i R1))
+;
+;(center-percent (div-interval R1 one-i))
+;(center-percent (div-interval one-i R1))
 
-(sub-interval R1 one-i)
-(sub-interval one-i R1)
-
-(center-percent (mul-interval R1 one-i))
-(center-percent (mul-interval one-i R1))
-
-(center-percent (div-interval R1 one-i))
-(center-percent (div-interval one-i R1))
-
+; Exercise 2.16.
 
 ;----
 
@@ -1876,3 +1877,44 @@
 
 ;(append-i squares odds)
 ;(append-i odds squares)
+
+; Exercise 2.19.
+
+(define us-coins (list 50 25 10 5 1))
+(define uk-conis (list 100 50 20 10 5 2 1 0.5))
+
+;(define (cc amount kinds-of-coins)
+;  (cond ((= amount 0) 1)
+;        ((or (< amount 0) (null? kinds-of-coins)) 0)
+;        (else (+ (cc amount (cdr kinds-of-coins))
+;                 (cc (- amount (car kinds-of-coins)) kinds-of-coins)))))
+
+(define cc-count 0)
+(define (cc amount coin-values)
+  (set! cc-count (+ cc-count 1))
+  (cond ((= amount 0) 1)
+        ((or (< amount 0) (no-more? coin-values)) 0)
+        (else (+ (cc amount
+                     (except-first-denomination coin-values))
+                 (cc (- amount (first-denomination coin-values))
+                     coin-values)))))
+
+;(define (no-more? coin-values)
+;  (null? coin-values))
+;(define (except-first-denomination coin-values)
+;  (cdr coin-values))
+;(define (first-denomination coin-values)
+;  (car coin-values))
+
+(define no-more? null?)
+(define except-first-denomination cdr)
+(define first-denomination car)
+
+(set! cc-count 0)
+(cc 100 us-coins)
+cc-count
+
+(set! cc-count 0)
+(cc 100 (reverse us-coins))
+cc-count
+
