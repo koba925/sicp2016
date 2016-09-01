@@ -1910,11 +1910,35 @@
 (define except-first-denomination cdr)
 (define first-denomination car)
 
-(set! cc-count 0)
-(cc 100 us-coins)
-cc-count
+;(set! cc-count 0)
+;(cc 100 us-coins)
+;cc-count
+;
+;(set! cc-count 0)
+;(cc 100 (reverse us-coins))
+;cc-count
 
-(set! cc-count 0)
-(cc 100 (reverse us-coins))
-cc-count
+; Exercise 2.20
 
+;(define (f x y . z) (list x y z))
+;(f 1 2 3 4 5 6)
+;(define (g . z) z)
+;(g 1 2 3 4 5 6)
+
+;(define f-l (lambda (x y . z) (list x y z)))
+;(f-l 1 2 3 4 5 6)
+;(define g-l (lambda z z))
+;(g-l 1 2 3 4 5 6)
+
+(define (same-parity a . z)
+  (define (sp z)
+    (display z) (newline)
+    (cond ((null? z) (quote ())) 
+          ((or (and (even? a) (even? (car z)))
+               (and (odd? a) (odd? (car z))))
+           (cons (car z) (sp (cdr z))))
+          (else (sp (cdr z)))))
+  (sp z))
+
+(same-parity 1 2 3 4 5 6 7)
+(same-parity 2 3 4 5 6 7)
