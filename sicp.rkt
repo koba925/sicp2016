@@ -1930,15 +1930,46 @@
 ;(define g-l (lambda z z))
 ;(g-l 1 2 3 4 5 6)
 
-(define (same-parity a . z)
-  (define (sp z)
-    (display z) (newline)
-    (cond ((null? z) (quote ())) 
-          ((or (and (even? a) (even? (car z)))
-               (and (odd? a) (odd? (car z))))
-           (cons (car z) (sp (cdr z))))
-          (else (sp (cdr z)))))
-  (sp z))
+;(define (same-parity a . z)
+;  (define (sp z)
+;    (display z) (newline)
+;    (cond ((null? z) (quote ())) 
+;          ((or (and (even? a) (even? (car z)))
+;               (and (odd? a) (odd? (car z))))
+;           (cons (car z) (sp (cdr z))))
+;          (else (sp (cdr z)))))
+;  (sp z))
 
-(same-parity 1 2 3 4 5 6 7)
-(same-parity 2 3 4 5 6 7)
+(define (same-parity a . z)
+  (let ((ra (remainder a 2)))
+    (define (sp z)
+      (cond ((null? z) (quote ())) 
+            ((= ra (remainder (car z) 2))
+             (cons (car z) (sp (cdr z))))
+            (else (sp (cdr z)))))
+    (sp z)))
+
+; (same-parity 1 2 3 4 5 6 7)
+; (same-parity 2 3 4 5 6 7)
+
+; Mapping over lists
+
+;(define (scale-list items factor)
+;  (if (null? items)
+;      (quote ())
+;      (cons (* (car items) factor)
+;               (scale-list (cdr items) factor))))
+
+(define (map proc items)
+  (if (null? items)
+      (quote ())
+      (cons (proc (car items)) (map proc (cdr items)))))
+
+(map abs (list -10 2.5 -11.6 17))
+(map (lambda (x) (* x x)) (list 1 2 3 4))
+
+(define (scale-list items factor)
+  (map (lambda (x) (* x factor)) items))
+
+(scale-list (list 1 2 3 4 5) 10)
+

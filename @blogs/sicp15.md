@@ -196,4 +196,59 @@ OK
   (sp z))
 ```
 
+偶奇の判定は`(= (reminder a 2) (reminder (car z) 2)`のほうがいいかな
+それに`(reminder a 2)`の値は変わらないから
+
+```
+(define (same-parity a . z)
+  (let ((ra (remainder a 2)))
+    (define (sp z)
+      (cond ((null? z) (quote ())) 
+            ((= ra (remainder (car z) 2))
+             (cons (car z) (sp (cdr z))))
+            (else (sp (cdr z)))))
+    (sp z)))
+```
+
+まだ何やらの戒律が残ってる気もするけどこれくらいでいいかな
+ていうか人間には修正前のやつのほうがわかりやすい気がする
+コンパイラがなんとかしてくれるかな？
+
+## Mapping over lists
+
+* リストの各要素に何らかの変換を施したリストを返す高階関数mapがとても便利
+
+mapの単純な実装
+
+```
+(define (map proc items)
+  (if (null? items)
+      (quote ())
+      (cons (proc (car items)) (map proc (cdr items)))))
+```
+
+mapを使うとたとえばリストの各要素を定数倍するこの手続きが
+
+```
+(define (scale-list items factor)
+  (if (null? items)
+      (quote ())
+      (cons (* (car items) factor)
+               (scale-list (cdr items) factor))))
+```
+
+こうなる
+
+```
+(define (scale-list items factor)
+  (map (lambda (x) (* x factor)) items))
+```
+
+これは単に短く書けるようになったというだけではなくて
+
+* リストを扱うための一段階上の抽象化を行っている
+* mapにより、リストの要素をひとつひとつ処理する方法を気にする必要がなくなった
+* コンピュータの処理方法が変わったのではなく、我々の考え方が変わっている
+* mapはひとつの抽象化の壁を作っているといえる
+
 
