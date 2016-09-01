@@ -1981,7 +1981,43 @@
 ;      (cons (square (car items))
 ;            (square-list (cdr items)))))
 
-(define (square-list items)
-  (map square items))
+(define (square-list items) (map square items))
 
-(square-list (list 1 2 3 4))
+; (square-list (list 1 2 3 4))
+
+(define (square-list-i items)
+  (define (iter things answer)
+    (if (null? things)
+        answer
+        (iter (cdr things) (cons (square (car things)) answer))))
+  (iter items (quote ())))
+
+; Exercise 2.22.
+
+; (square-list-i (list 1 2 3 4))
+
+(define (square-list-i2 items)
+  (define (iter things answer)
+    (if (null? things)
+        answer
+        (iter (cdr things) (cons answer (square (car things))))))
+  (iter items (quote ())))
+
+; (square-list-i2 (list 1 2 3 4))
+
+(define (apnd list a)
+  (if (null? list)
+      (cons a (quote ()))
+      (cons (car list) (apnd (cdr list) a))))
+
+(apnd '(1 2 3) 4)
+
+(define (square-list-i3 items)
+  (define (iter things answer)
+    (if (null? things)
+        answer
+        (iter (cdr things) (cons answer (cons (square (car things)) (quote ()))))))
+  (iter items (quote ())))
+
+; (square-list-i3 (list 1 2 3 4))
+

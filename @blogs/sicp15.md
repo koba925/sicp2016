@@ -269,3 +269,48 @@ mapを使うとたとえばリストの各要素を定数倍するこの手続�
 (define (square-list items) (map square items))
 ```
 
+### Exercise 2.22.
+
+* square-listを繰り返しプロセスにしようとして以下のように書き換えるとリストが逆順になってしまう
+
+```
+(define (square-list items)
+  (define (iter things answer)
+    (if (null? things)
+        answer
+        (iter (cdr things) (cons (square (car things)) answer))))
+  (iter items (quote ())))
+```
+
+* なぜか？
+
+リストの右にあるものほど後でconsされますがconsされるとリストの左にくっついてしまうので
+
+* こうしてもうまくいかない
+
+```
+(define (square-list items)
+  (define (iter things answer)
+    (if (null? things)
+        answer
+        (iter (cdr things) (cons answer (square (car things))))))
+  (iter items (quote ())))
+```
+
+* なぜか
+
+どうなるかというと
+
+```
+> (square-list (list 1 2 3 4))
+'((((() . 1) . 4) . 9) . 16)
+```
+
+最初のコードでは右にある要素が左にくっついてしまうということで左右を入れ替えてみましたが
+`(cons (quote ()) 1)`は `(1)`にはなってくれず`(() . 1)`になってしまいます
+
+前にもちょっとやりましたけど繰り返しプロセスでリストの右側にアトムをくっつける
+うまい書き方ってあるんですかね
+逆順で作っておいてreverseくらいがいいトコなんでしょうか
+
+
