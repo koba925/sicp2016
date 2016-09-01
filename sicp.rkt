@@ -1965,11 +1965,23 @@
       (quote ())
       (cons (proc (car items)) (map proc (cdr items)))))
 
-(map abs (list -10 2.5 -11.6 17))
-(map (lambda (x) (* x x)) (list 1 2 3 4))
+;(map abs (list -10 2.5 -11.6 17))
+;(map (lambda (x) (* x x)) (list 1 2 3 4))
 
 (define (scale-list items factor)
   (map (lambda (x) (* x factor)) items))
 
-(scale-list (list 1 2 3 4 5) 10)
+;(scale-list (list 1 2 3 4 5) 10)
 
+; Exercise 2.21.
+
+;(define (square-list items)
+;  (if (null? items)
+;      (quote ())
+;      (cons (square (car items))
+;            (square-list (cdr items)))))
+
+(define (square-list items)
+  (map square items))
+
+(square-list (list 1 2 3 4))
