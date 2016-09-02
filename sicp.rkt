@@ -2023,6 +2023,7 @@
 
 ; Exercise 2.23.
 
+
 (define (for-each proc items)
   (if (null? items)
       #t
@@ -2035,4 +2036,21 @@
 ;         (proc (car items))
 ;         (for-each proc (cdr items)))))
   
-(for-each (lambda (x) (newline) (display x)) (list 57 321 88))
+;(for-each (lambda (x) (newline) (display x)) (list 57 321 88))
+
+; 2.2.2 Hierarchical Structures
+
+(define (count-leaves x)
+  (cond ((null? x) 0)
+        ((not (pair? x)) 1)
+        (else (+ (count-leaves (car x))
+                 (count-leaves (cdr x))))))
+
+(cons (list 1 2) (list 3 4))
+(define x (cons (list 1 2) (list 3 4)))
+(length x)
+(count-leaves x)
+
+(list x x)
+(length (list x x))
+(count-leaves (list x x))
